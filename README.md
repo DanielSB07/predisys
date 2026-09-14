@@ -63,56 +63,6 @@ El sistema incluye los siguientes modelos:
 
 Los valores del hashrate de red pueden ser modificados directamente desde la interfaz.
 
-## Cálculo de rentabilidad
-
-PrediSys estima los ingresos diarios utilizando la participación del equipo dentro del hashrate total de la red.
-
-De forma simplificada:
-
-```text
-Participación de red =
-Hashrate del equipo / Hashrate de la red
-```
-
-Posteriormente se estima la cantidad de bloques diarios:
-
-```text
-Bloques diarios =
-86400 / Tiempo de bloque
-```
-
-Y finalmente:
-
-```text
-Ingreso diario =
-Participación de red
-×
-Bloques diarios
-×
-Recompensa por bloque
-×
-Precio actual
-```
-
-El precio de la criptomoneda se obtiene de CoinGecko.
-
-## Precio en tiempo real
-
-PrediSys utiliza el siguiente endpoint de CoinGecko:
-
-```text
-https://api.coingecko.com/api/v3/simple/price?ids=ergo,monero&vs_currencies=usd
-```
-
-La aplicación consulta:
-
-* Precio de ERG en USD.
-* Precio de XMR en USD.
-
-La información se actualiza automáticamente cada 5 minutos.
-
-También existe un botón para actualizar manualmente los precios.
-
 ## Tecnologías utilizadas
 
 * HTML5
@@ -158,24 +108,6 @@ También se puede utilizar un servidor local como Live Server en Visual Studio C
 7. Modificarlo si se desea utilizar otro escenario.
 8. Consultar el precio actual de la criptomoneda.
 9. Revisar los ingresos y beneficios estimados.
-
-## Actualización de precios
-
-La aplicación ejecuta:
-
-```javascript
-fetchLivePrices();
-```
-
-para consultar los precios actuales.
-
-Además, se utiliza una actualización periódica:
-
-```javascript
-setInterval(fetchLivePrices, 5 * 60 * 1000);
-```
-
-Esto permite actualizar los precios cada cinco minutos.
 
 ## API utilizada
 
