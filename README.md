@@ -122,21 +122,7 @@ También existe un botón para actualizar manualmente los precios.
 * Git
 * GitHub
 
-## Estructura del proyecto
-
-```text
-PrediSys/
-│
-├── index.html
-├── README.md
-└── assets/
-```
-
-La estructura puede variar dependiendo de la versión del proyecto.
-
 ## Instalación
-
-No es necesario instalar dependencias adicionales para ejecutar la aplicación.
 
 ### 1. Clonar el repositorio
 
@@ -215,11 +201,3 @@ El proyecto utiliza su API pública para consultar los precios de:
 ERG
 XMR
 ```
-
-## Autor
-
-Proyecto desarrollado como parte de un proyecto académico de análisis y predicción de rentabilidad en sistemas de minería de criptomonedas.
-
-## Licencia
-
-Este proyecto puede utilizarse con fines académicos y educativos.
