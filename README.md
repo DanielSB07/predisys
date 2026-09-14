@@ -1,5 +1,7 @@
 # PrediSys - Mining Profitability Dashboard
 
+Despliegue web: https://danielsb07.github.io/predisys/
+
 PrediSys es un dashboard web desarrollado para analizar y estimar la rentabilidad de equipos utilizados en minería de criptomonedas.
 
 El sistema permite comparar diferentes GPUs y CPUs teniendo en cuenta su hashrate, consumo energético, cantidad de equipos y el precio actual de la criptomoneda.
