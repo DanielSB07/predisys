@@ -117,6 +117,7 @@ También existe un botón para actualizar manualmente los precios.
 
 * HTML5
 * CSS3
+* Isolation Forest
 * JavaScript
 * CoinGecko API
 * Git
@@ -175,21 +176,6 @@ setInterval(fetchLivePrices, 5 * 60 * 1000);
 ```
 
 Esto permite actualizar los precios cada cinco minutos.
-
-## Consideraciones
-
-Los resultados proporcionados por PrediSys son estimaciones y no representan necesariamente los ingresos reales de una operación de minería.
-
-La rentabilidad real puede variar debido a factores como:
-
-* Variación del precio de la criptomoneda.
-* Cambios en el hashrate de la red.
-* Variaciones en las recompensas.
-* Consumo energético real.
-* Eficiencia del hardware.
-* Costos de electricidad.
-* Comisiones de minería.
-* Disponibilidad y funcionamiento del equipo.
 
 ## API utilizada
 
