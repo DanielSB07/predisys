@@ -14,12 +14,22 @@ Los precios de ERG (Ergo) y XMR (Monero) se obtienen mediante la API de CoinGeck
 * Calculadora de rentabilidad para GPUs.
 * Calculadora de rentabilidad para CPUs.
 * Consulta de precios de ERG y XMR en tiempo real.
-* Cálculo de ingresos diarios estimados.
+* Cálculo de ingresos diarios estimados (neto de ~1% de comisión de pool).
 * Cálculo del consumo energético.
 * Cálculo del beneficio estimado.
-* Cantidad de equipos configurable.
+* Cantidad de equipos configurable — la granja se guarda automáticamente en `localStorage`.
+* Payback period: días/años para recuperar la inversión en hardware según el precio de compra de cada equipo.
+* Escenario de dificultad de red editable (slider ±%) para proyectar ingresos futuros.
+* Selector de moneda para el costo eléctrico (USD/EUR/COP), usando la API de CoinGecko para el tipo de cambio.
+* Comparador lado a lado de dos equipos (GPU o CPU) en la Base de Hardware.
+* Compartir la configuración de granja vía link (query params en la URL).
+* Exportación de telemetría completa (60 lecturas) por rig individual a CSV.
 * Hashrate de red editable.
-* Actualización automática de precios cada 5 minutos.
+* Actualización automática de precios cada 5 minutos, con caché de 60s en `localStorage` para blindar el rate limit de CoinGecko.
+* Banner visible cuando falla la consulta de precio en vivo.
+* Sidebar colapsable con botón de hamburguesa en móvil.
+* Modo claro / oscuro.
+* Instalable como PWA (manifest + service worker con caché del app shell).
 * Interfaz web responsive.
 * Integración con la API pública de CoinGecko.
 

@@ -1,0 +1,2623 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PrediSys v6 | Sala de Control Predictiva</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="theme-color" content="#0B0F19">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PrediSys">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: { sans: ['Inter','sans-serif'], mono: ['JetBrains Mono','monospace'] },
+      colors: {
+        dark: { 950:'#070a10', 900:'#0B0F19', 800:'#131a29', 700:'#1E293B', 600:'#2A3648' },
+        brand: { cyan:'#22D3EE', purple:'#A78BFA', emerald:'#34D399', coral:'#FB7185', amber:'#FBBF24' }
+      }
+    }
+  }
+}
+</script>
+</head>
+<body class="text-sm font-sans flex flex-col h-screen">
+<div class="bg-grid"></div>
+<div class="bg-mesh"></div>
+
+<!-- ============ LOGIN (Split-Screen) ============ -->
+<div id="view-login" class="fixed inset-0 z-50 flex bg-dark-950 transition-opacity duration-500">
+
+  <!-- Lado izquierdo: visual / marca -->
+  <div class="hidden lg:flex w-1/2 relative flex-col justify-between p-14 overflow-hidden bg-dark-950 border-r border-white/5">
+    <div class="absolute inset-0 opacity-[0.35]">
+      <svg width="100%" height="100%" viewBox="0 0 800 900" preserveAspectRatio="xMidYMid slice">
+        <path d="M0,120 Q100,60 200,120 T400,120 T600,120 T800,120" fill="none" stroke="#22D3EE" stroke-width="1"/>
+        <path d="M0,220 Q100,160 200,220 T400,220 T600,220 T800,220" fill="none" stroke="#A78BFA" stroke-width="1"/>
+        <path d="M0,320 Q100,270 200,320 T400,320 T600,320 T800,320" fill="none" stroke="#22D3EE" stroke-width="0.75"/>
+        <path d="M0,430 Q100,370 200,430 T400,430 T600,430 T800,430" fill="none" stroke="#34D399" stroke-width="0.75"/>
+        <path d="M0,540 Q100,490 200,540 T400,540 T600,540 T800,540" fill="none" stroke="#A78BFA" stroke-width="0.75"/>
+        <path d="M0,650 Q100,600 200,650 T400,650 T600,650 T800,650" fill="none" stroke="#22D3EE" stroke-width="0.75"/>
+        <path d="M0,760 Q100,710 200,760 T400,760 T600,760 T800,760" fill="none" stroke="#34D399" stroke-width="0.5"/>
+        <path d="M0,860 Q100,820 200,860 T400,860 T600,860 T800,860" fill="none" stroke="#A78BFA" stroke-width="0.5"/>
+      </svg>
+    </div>
+    <div class="absolute -top-24 -left-24 w-72 h-72 bg-brand-purple rounded-full mix-blend-screen filter blur-[100px] opacity-20"></div>
+    <div class="absolute bottom-0 right-0 w-72 h-72 bg-brand-cyan rounded-full mix-blend-screen filter blur-[100px] opacity-20"></div>
+
+    <div class="relative z-10 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-brand-cyan to-brand-emerald flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+      </div>
+      <span class="text-lg font-bold text-white tracking-tight">PrediSys</span>
+    </div>
+
+    <div class="relative z-10 max-w-md">
+      <span class="text-[11px] font-bold text-brand-cyan uppercase tracking-[0.2em]">Inteligencia Operativa</span>
+      <h1 class="text-5xl font-extrabold text-white leading-[1.08] mt-4 tracking-tight">Convierta los datos en <span class="text-brand-cyan">tiempo de acción.</span></h1>
+      <p class="text-slate-400 mt-5 text-[15px] leading-relaxed">Observe cada señal de su flota, simule escenarios y actúe antes de que el riesgo se convierta en una parada.</p>
+    </div>
+
+    <div class="relative z-10 flex items-center gap-2 text-[11px] text-slate-500">
+      <span class="w-1.5 h-1.5 rounded-full bg-brand-emerald animate-pulse"></span>
+      Motor ML: Isolation Forest · Monitoreo en tiempo real
+    </div>
+  </div>
+
+  <!-- Lado derecho: formulario -->
+  <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-dark-900 relative">
+    <div class="absolute inset-0 bg-grid opacity-40 lg:hidden"></div>
+    <div class="w-full max-w-sm relative z-10">
+      <div class="lg:hidden flex items-center gap-2 mb-10 justify-center">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-cyan to-brand-emerald flex items-center justify-center">
+          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+        </div>
+        <span class="text-base font-bold text-white">PrediSys</span>
+      </div>
+
+      <span class="text-[11px] font-bold text-brand-purple uppercase tracking-[0.2em]">Acceso Seguro</span>
+      <h2 class="text-3xl font-bold text-white mt-3">Bienvenido al centro.</h2>
+      <p class="text-slate-400 mt-2 text-sm">Ingresa para revisar el pulso operativo de tu flota.</p>
+
+      <div class="space-y-4 mt-8">
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1.5">Correo de trabajo</label>
+          <input id="login-email" type="text" value="operador@predisys.io" placeholder="operador@predisys.io" class="w-full bg-dark-950/60 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-brand-cyan transition-colors text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1.5">Contraseña</label>
+          <div class="relative">
+            <input id="login-password" type="password" value="predisys-demo" class="w-full bg-dark-950/60 border border-slate-700 rounded-xl px-4 py-3 pr-14 text-white focus:outline-none focus:border-brand-cyan transition-colors text-sm">
+            <button type="button" onclick="togglePasswordVisibility()" id="pw-toggle-btn" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] font-bold text-slate-400 hover:text-brand-cyan transition-colors">Ver</button>
+          </div>
+        </div>
+
+        <button onclick="doLogin()" class="w-full mt-2 bg-brand-cyan text-dark-950 font-bold py-3.5 rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-brand-cyan/20 flex justify-center items-center gap-2">
+          Entrar al centro de control
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 7l-10 10M17 7H8m9 0v9"/></svg>
+        </button>
+
+        <div class="text-center pt-1">
+          <a href="#" onclick="showRegisterNote(event)" class="text-xs text-slate-500 hover:text-slate-300 transition-colors">Registrar usuario</a>
+          <p id="register-note" class="hidden text-[11px] text-brand-cyan mt-2">Función disponible próximamente · usa las credenciales de demostración precargadas.</p>
+        </div>
+      </div>
+
+      <div class="mt-10 flex items-center justify-center gap-2 text-[11px] text-slate-600">
+        <span class="w-1.5 h-1.5 rounded-full bg-brand-emerald animate-pulse"></span>
+        Credenciales de demostración precargadas
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP SHELL ============ -->
+<div id="view-app" class="flex h-screen w-full hidden overflow-hidden fade-in">
+
+  <!-- Overlay para cerrar el sidebar en móvil -->
+  <div id="sidebar-overlay" class="hidden fixed inset-0 bg-black/60 z-30 lg:hidden" onclick="closeMobileSidebar()"></div>
+
+  <!-- SIDEBAR -->
+  <aside id="app-sidebar" class="w-72 flex flex-col glass m-3 mr-0 z-40 flex-shrink-0 fixed inset-y-0 left-0 -translate-x-[calc(100%+1rem)] transition-transform duration-300 ease-out lg:static lg:translate-x-0">
+    <div class="p-5 border-b border-white/5 flex items-center gap-3 cursor-pointer" onclick="showDashboard()">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-cyan to-brand-emerald flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+      </div>
+      <div>
+        <h2 class="text-lg font-bold text-white leading-tight">PrediSys</h2>
+        <span class="text-[10px] text-brand-cyan font-mono uppercase tracking-wider">Flota Operativa</span>
+      </div>
+    </div>
+
+    <!-- Primary nav -->
+    <div class="p-3 space-y-1 border-b border-white/5">
+      <button id="nav-btn-dashboard" onclick="showDashboard()" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-white/5 hover:text-white">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span class="text-sm font-semibold">Vista General</span>
+      </button>
+      <button id="nav-btn-analytics" onclick="showAnalytics()" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-white/5 hover:text-white">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <span class="text-sm font-semibold">Analítica ML</span>
+      </button>
+      <button id="nav-btn-profile" onclick="showProfile()" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-white/5 hover:text-white">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        <span class="text-sm font-semibold">Perfil &amp; Preferencias</span>
+      </button>
+      <!-- ===== Herramientas de Minería ===== -->
+      <div class="px-3 pt-1 pb-2 border-b border-white/5">
+        <div class="px-2 pb-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Herramientas de Minería</div>
+        <div class="space-y-1">
+          <button id="nav-btn-hardware" onclick="showHardware()" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-white/5 hover:text-white">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2M9 8h.01M9 16h.01"/></svg>
+            <span class="text-sm font-semibold">Base de Hardware</span>
+          </button>
+          <button id="nav-btn-gpucalc" onclick="showGpuCalc()" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-white/5 hover:text-white">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6M9 11h6M9 15h2M6 3h12a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V5a2 2 0 012-2zM13 15h2"/></svg>
+            <span class="text-sm font-semibold">Calculadora GPU</span>
+          </button>
+          <button id="nav-btn-cpucalc" onclick="showCpuCalc()" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-white/5 hover:text-white">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 7h10v10H7V7z"/></svg>
+            <span class="text-sm font-semibold">Calculadora CPU</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rig search / sort -->
+    <div class="px-3 pt-3 pb-1 flex items-center gap-2">
+      <div class="relative flex-1">
+        <svg class="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input id="sidebar-search" oninput="renderSidebar()" placeholder="Buscar rig..." class="w-full bg-dark-900/60 border border-slate-700 rounded-lg pl-8 pr-2 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-cyan">
+      </div>
+      <button onclick="toggleSidebarSort()" title="Ordenar por score" class="glass-btn p-2 rounded-lg text-slate-400 hover:text-white">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9M3 12h9m-9 4h5M17 4v16m0 0l-4-4m4 4l4-4"/></svg>
+      </button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto px-3 pb-3 space-y-1.5" id="sidebar-rigs"></div>
+
+    <div class="p-4 border-t border-white/5 bg-white/[0.02] rounded-b-xl flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full bg-brand-purple flex items-center justify-center text-white font-bold text-sm shrink-0">OP</div>
+      <div class="flex-1 overflow-hidden">
+        <div class="text-sm font-semibold text-white truncate">Operador Demo</div>
+        <div class="text-xs text-slate-400 truncate">Sala de Control Predictiva</div>
+      </div>
+      <button onclick="logout()" class="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors" title="Cerrar Sesión">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 flex flex-col h-full overflow-hidden p-3" id="exportable-area">
+
+    <header class="glass px-6 py-4 mb-3 flex items-center justify-between no-print z-10 shrink-0 flex-wrap gap-3">
+      <div class="flex items-center gap-3">
+        <button onclick="toggleMobileSidebar()" class="lg:hidden glass-btn p-2 rounded-lg text-slate-300 hover:text-white shrink-0" title="Abrir menú" aria-label="Abrir menú">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <div>
+          <h1 class="text-xl font-bold text-white flex items-center gap-3" id="header-title">Vista General de Flota</h1>
+          <p class="text-xs text-slate-400 mt-1" id="header-subtitle">Inteligencia predictiva basada en Isolation Forest sobre telemetría en tiempo real.</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="hidden lg:flex items-center gap-2 bg-dark-900/50 px-3 py-1.5 rounded-lg text-xs font-mono border border-slate-700">
+          <span class="w-2 h-2 rounded-full bg-brand-emerald animate-pulse"></span>
+          <span class="text-slate-300" id="header-clock">--:--:--</span>
+          <span class="text-slate-600">|</span>
+          <span class="text-slate-400">Reentrena en <span id="header-retrain" class="text-brand-cyan">--</span></span>
+        </div>
+        <div class="relative" id="export-wrapper">
+          <button onclick="toggleExportMenu(event)" class="glass-btn px-4 py-2 rounded-lg text-xs font-semibold text-white flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l-3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Exportar Informe
+            <svg class="w-3 h-3 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div id="export-menu" class="hidden absolute right-0 top-full mt-2 w-56 glass border border-white/10 rounded-xl z-30 overflow-hidden shadow-2xl">
+            <button onclick="downloadPDF()" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-semibold text-slate-200 hover:bg-white/5 hover:text-white text-left">
+              <svg class="w-4 h-4 text-brand-coral shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <div><div>Descargar en PDF</div><div class="text-[10px] text-slate-500 font-normal">Informe ejecutivo con gráfica y tabla</div></div>
+            </button>
+            <button onclick="downloadCSV()" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-semibold text-slate-200 hover:bg-white/5 hover:text-white text-left border-t border-white/5">
+              <svg class="w-4 h-4 text-brand-emerald shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 014-4h4m0 0l-3-3m3 3l-3 3M4 5h16v14H4z"/></svg>
+              <div><div>Descargar en Excel (.csv)</div><div class="text-[10px] text-slate-500 font-normal">Datos de flota en bruto</div></div>
+            </button>
+          </div>
+        </div>
+        <div class="relative" id="notif-wrapper">
+          <button onclick="toggleNotifPanel(event)" class="glass-btn p-2 rounded-lg text-slate-300 hover:text-white relative" title="Notificaciones">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            <span id="notif-badge" class="hidden absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-brand-coral text-white text-[9px] font-bold flex items-center justify-center leading-none">0</span>
+          </button>
+          <div id="notif-panel" class="hidden absolute right-0 top-full mt-2 w-80 glass border border-white/10 rounded-xl z-30 overflow-hidden shadow-2xl">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-white/5">
+              <span class="text-xs font-bold text-white">Notificaciones</span>
+              <button onclick="clearNotifications()" class="text-[11px] text-slate-400 hover:text-brand-coral transition-colors font-semibold">Limpiar</button>
+            </div>
+            <div id="notif-list" class="max-h-80 overflow-y-auto p-2 space-y-1.5"></div>
+          </div>
+        </div>
+        <button onclick="toggleThemeMode()" id="theme-toggle-btn" class="glass-btn p-2 rounded-lg text-slate-300 hover:text-white" title="Cambiar tema claro/oscuro">
+          <svg id="theme-icon-moon" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+          <svg id="theme-icon-sun" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        </button>
+        <button onclick="openHelp()" class="glass-btn p-2 rounded-lg text-slate-300 hover:text-white" title="Ayuda y Algoritmos">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="flex-1 overflow-y-auto pr-2 pb-10" id="main-scroll-area">
+
+      <!-- ============ DASHBOARD ============ -->
+      <div id="content-dashboard" class="space-y-4 fade-in">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="dash-kpis"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div class="lg:col-span-2 glass p-5 flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="font-semibold text-white">Estado de Máquinas</h3>
+              <span class="text-[10px] font-mono text-slate-400 bg-dark-900 px-2 py-1 rounded">Rig-01 a Rig-10</span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 flex-1" id="dash-grid"></div>
+          </div>
+
+          <div class="glass p-5 flex flex-col items-center justify-center relative">
+            <h3 class="font-semibold text-white w-full text-left mb-6">Salud Global de Flota</h3>
+            <div class="relative w-44 h-44">
+              <svg width="100%" height="100%" viewBox="0 0 100 100" class="-rotate-90">
+                <circle cx="50" cy="50" r="40" stroke="#1E293B" stroke-width="12" fill="none"/>
+                <g id="donut-segments"></g>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span id="donut-total" class="text-3xl font-bold text-white">10</span>
+                <span class="text-[10px] text-slate-400 uppercase tracking-wider mt-1">Rigs Activos</span>
+              </div>
+            </div>
+            <div class="w-full mt-8 space-y-2" id="donut-legend"></div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="glass p-5">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="font-semibold text-white text-sm">Distribución de Score de Anomalía</h3>
+              <span class="text-[9px] font-mono bg-dark-900 border border-slate-700 px-1.5 py-0.5 rounded text-slate-400">Histograma en vivo</span>
+            </div>
+            <div class="flex items-end justify-between gap-2 h-32" id="dash-histogram"></div>
+          </div>
+          <div class="glass p-5">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="font-semibold text-white text-sm">Ranking de Riesgo</h3>
+              <span class="text-[9px] font-mono bg-dark-900 border border-slate-700 px-1.5 py-0.5 rounded text-slate-400">Mayor a menor score</span>
+            </div>
+            <div class="space-y-2.5" id="dash-ranking"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ RIG DETAIL ============ -->
+      <div id="content-rig" class="space-y-4 hidden fade-in">
+
+        <div class="glass p-4 flex flex-wrap gap-4 justify-between items-center no-print">
+          <div class="flex items-center gap-3 flex-wrap">
+            <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider ml-1">Inyectar Anomalía:</span>
+            <div class="flex gap-2 flex-wrap">
+              <button onclick="injectFault('thermal')" class="bg-brand-coral/10 hover:bg-brand-coral/20 border border-brand-coral/30 text-brand-coral px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/></svg>
+                Pico Térmico
+              </button>
+              <button onclick="injectFault('hash')" class="bg-brand-cyan/10 hover:bg-brand-cyan/20 border border-brand-cyan/30 text-brand-cyan px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg>
+                Caída Hash
+              </button>
+              <button onclick="injectFault('power')" class="bg-brand-purple/10 hover:bg-brand-purple/20 border border-brand-purple/30 text-brand-purple px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                Sobrecarga
+              </button>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 flex-wrap">
+            <div class="flex items-center gap-1 bg-dark-900/50 border border-slate-700 rounded-lg p-1 text-[11px] font-semibold">
+              <button onclick="setIntensity('mild')" id="int-mild" class="px-2.5 py-1 rounded-md text-slate-400">Leve</button>
+              <button onclick="setIntensity('moderate')" id="int-moderate" class="px-2.5 py-1 rounded-md text-slate-400">Moderada</button>
+              <button onclick="setIntensity('severe')" id="int-severe" class="px-2.5 py-1 rounded-md text-slate-400">Severa</button>
+            </div>
+            <button onclick="clearFault()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-colors">
+              ↺ Restaurar Estado Normal
+            </button>
+            <button onclick="downloadRigTelemetryCSV(selectedRigId)" class="glass-btn text-slate-300 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5" title="Exportar las 60 lecturas de este rig a CSV">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              Exportar telemetría
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div class="glass p-5">
+            <h3 class="font-semibold text-white mb-2 text-sm">Balance Operativo (Radar)</h3>
+            <div class="relative w-full aspect-square max-h-56 mx-auto mt-4">
+              <svg width="100%" height="100%" viewBox="0 0 100 100">
+                <polygon points="50,10 88,38 73,82 27,82 12,38" fill="none" stroke="#334155" stroke-width="0.5"/>
+                <polygon points="50,30 69,44 62,66 38,66 31,44" fill="none" stroke="#334155" stroke-width="0.5"/>
+                <line x1="50" y1="50" x2="50" y2="10" stroke="#334155" stroke-width="0.5"/>
+                <line x1="50" y1="50" x2="88" y2="38" stroke="#334155" stroke-width="0.5"/>
+                <line x1="50" y1="50" x2="73" y2="82" stroke="#334155" stroke-width="0.5"/>
+                <line x1="50" y1="50" x2="27" y2="82" stroke="#334155" stroke-width="0.5"/>
+                <line x1="50" y1="50" x2="12" y2="38" stroke="#334155" stroke-width="0.5"/>
+                <text x="50" y="7" text-anchor="middle" font-size="4" fill="#94A3B8">Temp</text>
+                <text x="92" y="39" text-anchor="start" font-size="4" fill="#94A3B8">Hash</text>
+                <text x="76" y="86" text-anchor="start" font-size="4" fill="#94A3B8">GPU</text>
+                <text x="24" y="86" text-anchor="end" font-size="4" fill="#94A3B8">Confianza</text>
+                <text x="8" y="39" text-anchor="end" font-size="4" fill="#94A3B8">Pot.</text>
+                <polygon id="radar-data" points="" fill="rgba(34,211,238,0.3)" stroke="#22D3EE" stroke-width="1.5" class="transition-all duration-300"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="glass p-5 flex flex-col items-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent to-brand-coral/5 pointer-events-none" id="gauge-bg"></div>
+            <div class="w-full flex justify-between items-start mb-2 z-10">
+              <h3 class="font-semibold text-white text-sm">Score de Anomalía (ML)</h3>
+              <span class="text-[9px] font-mono bg-dark-900 border border-slate-700 px-1.5 py-0.5 rounded text-slate-400">Isolation Forest</span>
+            </div>
+            <div class="relative w-40 h-40 mt-4 z-10">
+              <svg width="100%" height="100%" viewBox="0 0 100 55">
+                <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#1E293B" stroke-width="8" stroke-linecap="round"/>
+                <path id="gauge-arc" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#10B981" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="125.6" class="transition-all duration-700 ease-out"/>
+              </svg>
+              <div class="absolute bottom-0 left-0 right-0 flex flex-col items-center">
+                <span id="gauge-val" class="text-4xl font-bold font-mono text-white tracking-tighter">0%</span>
+              </div>
+            </div>
+            <p id="gauge-desc" class="text-xs text-slate-400 text-center mt-2 z-10">Comportamiento normal.</p>
+            <div class="w-full grid grid-cols-2 gap-2 mt-4 z-10">
+              <div class="bg-dark-900/50 p-2.5 rounded-xl border border-white/5 text-center">
+                <div class="text-[9px] text-slate-500 uppercase tracking-wide">TTF Estimado</div>
+                <div id="ml-ttf" class="text-lg font-mono font-bold text-brand-emerald">--</div>
+              </div>
+              <div class="bg-dark-900/50 p-2.5 rounded-xl border border-white/5 text-center">
+                <div class="text-[9px] text-slate-500 uppercase tracking-wide">Confianza</div>
+                <div id="ml-confidence" class="text-lg font-mono font-bold text-white">--</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass p-5 grid grid-cols-2 gap-3 content-start">
+            <h3 class="font-semibold text-white text-sm col-span-2 mb-1">Métricas en Vivo</h3>
+            <div class="bg-dark-900/50 p-3 rounded-xl border border-white/5">
+              <div class="text-[10px] text-brand-coral font-bold uppercase tracking-wide">Temp. ASIC</div>
+              <div class="text-xl font-mono font-bold text-white mt-1" id="stat-temp">--</div>
+            </div>
+            <div class="bg-dark-900/50 p-3 rounded-xl border border-white/5">
+              <div class="text-[10px] text-brand-cyan font-bold uppercase tracking-wide">Hashrate</div>
+              <div class="text-xl font-mono font-bold text-white mt-1" id="stat-hash">--</div>
+            </div>
+            <div class="bg-dark-900/50 p-3 rounded-xl border border-white/5">
+              <div class="text-[10px] text-brand-purple font-bold uppercase tracking-wide">Potencia</div>
+              <div class="text-xl font-mono font-bold text-white mt-1" id="stat-power">--</div>
+            </div>
+            <div class="bg-dark-900/50 p-3 rounded-xl border border-white/5">
+              <div class="text-[10px] text-brand-emerald font-bold uppercase tracking-wide">Uso GPU</div>
+              <div class="text-xl font-mono font-bold text-white mt-1" id="stat-gpu">--</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Score history with thresholds -->
+        <div class="glass p-5">
+          <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
+            <h3 class="font-semibold text-white text-sm">Score de Anomalía en el Tiempo</h3>
+            <div class="flex gap-4 text-[10px] font-mono text-slate-400">
+              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-brand-emerald/40"></span>Normal &lt; <span id="band-label-warn">40</span>%</span>
+              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-brand-amber/40"></span>Advertencia</span>
+              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-brand-coral/40"></span>Riesgo &gt; <span id="band-label-risk">75</span>%</span>
+            </div>
+          </div>
+          <div class="w-full h-32 relative">
+            <svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+              <g id="score-bands"></g>
+              <path id="score-path" class="chart-line glow text-brand-cyan" stroke="currentColor" d=""/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Metric charts with threshold bands -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div class="glass p-5">
+            <h4 class="text-xs font-semibold text-brand-coral uppercase tracking-wide mb-3">Temperatura ASIC (°C)</h4>
+            <div class="w-full h-28"><svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100"><g id="temp-bands"></g><path id="temp-path" class="chart-line glow text-brand-coral" stroke="currentColor" d=""/></svg></div>
+          </div>
+          <div class="glass p-5">
+            <h4 class="text-xs font-semibold text-brand-cyan uppercase tracking-wide mb-3">Hashrate (TH/s)</h4>
+            <div class="w-full h-28"><svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100"><g id="hash-bands"></g><path id="hash-path" class="chart-line glow text-brand-cyan" stroke="currentColor" d=""/></svg></div>
+          </div>
+          <div class="glass p-5">
+            <h4 class="text-xs font-semibold text-brand-purple uppercase tracking-wide mb-3">Potencia (W)</h4>
+            <div class="w-full h-28"><svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100"><g id="power-bands"></g><path id="power-path" class="chart-line glow text-brand-purple" stroke="currentColor" d=""/></svg></div>
+          </div>
+          <div class="glass p-5">
+            <h4 class="text-xs font-semibold text-brand-emerald uppercase tracking-wide mb-3">Uso GPU (%)</h4>
+            <div class="w-full h-28"><svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100"><g id="gpu-bands"></g><path id="gpu-path" class="chart-line glow text-brand-emerald" stroke="currentColor" d=""/></svg></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ ANALYTICS (ML) ============ -->
+      <div id="content-analytics" class="space-y-4 hidden fade-in">
+        <div class="glass p-5">
+          <div class="flex items-center justify-between flex-wrap gap-3 mb-2">
+            <h3 class="font-semibold text-white text-sm flex items-center gap-2">
+              <svg class="w-4 h-4 text-brand-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              Motor Isolation Forest
+            </h3>
+            <span class="text-[10px] font-mono text-slate-500">Reconstruye el bosque cada <span id="an-rebuild-every">5</span> ciclos</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">Cada ciclo se aíslan las observaciones (Temp, Hashrate, Potencia) de los 10 rigs mediante <span id="an-trees">60</span> árboles de aislamiento aleatorios sobre una muestra de <span id="an-sample">48</span> puntos. Los puntos que requieren menos divisiones para quedar aislados obtienen una longitud de camino promedio menor y, por lo tanto, un score de anomalía más alto.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="glass p-5">
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="font-semibold text-white text-sm">Dispersión de Flota: Temp. vs Potencia</h3>
+              <span class="text-[9px] font-mono bg-dark-900 border border-slate-700 px-1.5 py-0.5 rounded text-slate-400">Color = estado</span>
+            </div>
+            <div class="w-full aspect-square max-h-72 mx-auto relative">
+              <svg class="w-full h-full" viewBox="0 0 100 100">
+                <line x1="0" y1="25" x2="100" y2="25" stroke="#1E293B" stroke-width="0.4"/>
+                <line x1="0" y1="50" x2="100" y2="50" stroke="#1E293B" stroke-width="0.4"/>
+                <line x1="0" y1="75" x2="100" y2="75" stroke="#1E293B" stroke-width="0.4"/>
+                <line x1="25" y1="0" x2="25" y2="100" stroke="#1E293B" stroke-width="0.4"/>
+                <line x1="50" y1="0" x2="50" y2="100" stroke="#1E293B" stroke-width="0.4"/>
+                <line x1="75" y1="0" x2="75" y2="100" stroke="#1E293B" stroke-width="0.4"/>
+                <g id="scatter-points"></g>
+              </svg>
+              <span class="absolute -bottom-5 left-0 text-[9px] text-slate-500 font-mono">40°C</span>
+              <span class="absolute -bottom-5 right-0 text-[9px] text-slate-500 font-mono">100°C</span>
+              <span class="absolute -left-1 top-0 -translate-x-full text-[9px] text-slate-500 font-mono">4.2kW</span>
+              <span class="absolute -left-1 bottom-0 -translate-x-full text-[9px] text-slate-500 font-mono">2.5kW</span>
+            </div>
+          </div>
+
+          <div class="glass p-5">
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="font-semibold text-white text-sm">Score Actual por Rig</h3>
+              <span class="text-[9px] font-mono bg-dark-900 border border-slate-700 px-1.5 py-0.5 rounded text-slate-400">Isolation Forest</span>
+            </div>
+            <div class="space-y-2.5" id="analytics-ranking"></div>
+          </div>
+        </div>
+
+        <div class="glass p-5">
+          <h3 class="font-semibold text-white text-sm mb-3">Rig con Mayor Desviación</h3>
+          <div id="analytics-top-detail" class="text-xs text-slate-400"></div>
+        </div>
+      </div>
+
+      <!-- ============ PROFILE ============ -->
+      <div id="content-profile" class="space-y-4 hidden fade-in">
+        <div class="glass p-6 flex items-center gap-5 flex-wrap">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-purple to-brand-cyan flex items-center justify-center text-white font-bold text-2xl shrink-0">OP</div>
+          <div class="flex-1 min-w-[200px]">
+            <div class="text-lg font-bold text-white">Operador Demo</div>
+            <div class="text-xs text-slate-400 mt-0.5">Sala de Control Predictiva · PrediSys</div>
+            <div class="text-xs text-slate-500 mt-0.5 font-mono">operador@predisys.demo</div>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] text-slate-500 uppercase tracking-wider">Sesión iniciada</div>
+            <div class="text-xs font-mono text-slate-300" id="profile-session-time">--</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="glass p-6 space-y-5">
+            <h3 class="font-semibold text-white text-sm">Preferencias del Sistema</h3>
+            <p class="text-[10px] text-slate-500 -mt-3">Los umbrales se guardan en este navegador (<code class="text-slate-400">localStorage</code>) y se aplican en vivo a toda la flota.</p>
+
+            <div>
+              <div class="flex justify-between text-xs mb-1.5"><span class="text-slate-400">Umbral de Advertencia</span><span class="font-mono text-brand-amber" id="pref-warn-val">40%</span></div>
+              <input type="range" id="pref-warn" min="10" max="60" value="40" class="w-full" oninput="updateThresholdPreview()">
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1.5"><span class="text-slate-400">Umbral de Riesgo Crítico</span><span class="font-mono text-brand-coral" id="pref-risk-val">75%</span></div>
+              <input type="range" id="pref-risk" min="50" max="95" value="75" class="w-full" oninput="updateThresholdPreview()">
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1.5"><span class="text-slate-400">Velocidad de Simulación</span><span class="font-mono text-brand-cyan" id="pref-speed-val">1.5s</span></div>
+              <input type="range" id="pref-speed" min="500" max="4000" step="250" value="1500" class="w-full" oninput="document.getElementById('pref-speed-val').innerText=(this.value/1000).toFixed(2)+'s'">
+            </div>
+            <div class="flex items-center justify-between pt-1">
+              <div>
+                <div class="text-xs text-slate-300 font-semibold">Notificaciones</div>
+                <div class="text-[10px] text-slate-500">Registrar avisos en la campana al cruzar de estado</div>
+              </div>
+              <div id="pref-toast-toggle" class="toggle on" onclick="this.classList.toggle('on')"><div class="dot"></div></div>
+            </div>
+
+            <button onclick="savePreferences()" class="w-full bg-gradient-to-r from-brand-cyan to-brand-purple text-white font-bold py-2.5 rounded-xl hover:opacity-90 transition-opacity text-sm mt-2">Guardar Preferencias</button>
+          </div>
+
+          <div class="glass p-6 flex flex-col">
+            <h3 class="font-semibold text-white text-sm mb-3">Actividad Reciente</h3>
+            <div class="space-y-2 overflow-y-auto flex-1 max-h-80" id="activity-log"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ HARDWARE DB ============ -->
+      <div id="content-hardware" class="space-y-4 hidden fade-in">
+        <div class="glass p-5">
+          <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+            <div>
+              <h3 class="font-semibold text-white">Comparar dos equipos</h3>
+              <p class="text-xs text-slate-400 mt-1">Selecciona cualquier par de dispositivos para ver sus diferencias en detalle.</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+            <select id="compare-device-a" onchange="renderHardwareCompare()" class="bg-dark-900/60 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-cyan"></select>
+            <select id="compare-device-b" onchange="renderHardwareCompare()" class="bg-dark-900/60 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-purple"></select>
+          </div>
+          <div id="compare-result" class="overflow-x-auto"></div>
+        </div>
+
+        <div class="glass p-5">
+          <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+            <div>
+              <h3 class="font-semibold text-white">Base de Datos de Hardware</h3>
+              <p class="text-xs text-slate-400 mt-1">Especificaciones y rentabilidad estimada por dispositivo (datos simulados).</p>
+            </div>
+            <div class="relative">
+              <svg class="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <input id="hardware-search" oninput="renderHardwareTable()" placeholder="Buscar dispositivo o algoritmo..." class="bg-dark-900/60 border border-slate-700 rounded-lg pl-8 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-cyan w-64">
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead>
+                <tr class="text-slate-500 uppercase tracking-wider text-[10px] border-b border-white/5">
+                  <th class="py-2.5 pr-4 font-semibold">Dispositivo</th>
+                  <th class="py-2.5 pr-4 font-semibold">Algoritmo más rentable</th>
+                  <th class="py-2.5 pr-4 font-semibold">Hashrate</th>
+                  <th class="py-2.5 pr-4 font-semibold">Consumo</th>
+                  <th class="py-2.5 pr-4 font-semibold">Eficiencia</th>
+                  <th class="py-2.5 pr-0 font-semibold text-right">Ingreso Diario</th>
+                </tr>
+              </thead>
+              <tbody id="hardware-table-body" class="divide-y divide-white/5"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ GPU CALCULATOR ============ -->
+      <div id="content-gpucalc" class="space-y-4 hidden fade-in">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div class="lg:col-span-2 glass p-5">
+            <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+              <h3 class="font-semibold text-white">Granja de GPUs</h3>
+              <div class="flex items-center gap-2 bg-dark-900/60 border border-slate-700 rounded-lg px-3 py-2">
+                <span class="text-[11px] text-slate-400">Costo Eléctrico (/kWh)</span>
+                <input id="gpu-power-cost" type="number" step="0.01" min="0" value="0.12" oninput="calculateProfit('gpu')" class="w-16 bg-transparent text-white text-xs font-mono focus:outline-none text-right">
+                <select id="gpu-currency" onchange="calculateProfit('gpu')" class="bg-dark-900 border-l border-slate-700 pl-2 text-[11px] text-slate-300 focus:outline-none">
+                  <option value="USD">USD</option>
+                  <option value="EUR">EUR</option>
+                  <option value="COP">COP</option>
+                </select>
+              </div>
+            </div>
+            <div id="gpu-price-error-banner" class="hidden mb-4 bg-brand-coral/10 border border-brand-coral/30 rounded-xl px-4 py-3 flex items-center gap-3 text-xs text-brand-coral">
+              <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              <div><span class="font-bold">Sin precio en vivo.</span> No se pudo consultar CoinGecko (límite de peticiones o sin conexión) — todos los ingresos de esta tabla están en $0.00 hasta reconectar.</div>
+            </div>
+            <div class="flex items-center justify-between flex-wrap gap-3 mb-3 bg-dark-900/40 border border-white/5 rounded-xl px-3 py-2.5">
+              <div id="gpu-price-badge" class="flex items-center gap-2 text-[11px] font-mono text-slate-400">
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span> Obteniendo precio de ERG...
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] text-slate-400">Hashrate de red (Autolykos2)</span>
+                <input id="gpu-network-hashrate" type="number" step="0.1" min="0.1" value="15"
+                  oninput="NETWORK_STATS.gpu.networkHashrate = parseFloat(this.value) || NETWORK_STATS.gpu.networkHashrate; renderHardwareTable(); calculateProfit('gpu');"
+                  class="w-16 bg-dark-900 border border-slate-700 rounded px-1.5 py-1 text-white text-xs font-mono text-right focus:outline-none focus:border-brand-cyan">
+                <span class="text-[11px] text-slate-500">TH/s</span>
+                <button onclick="fetchLivePrices()" title="Actualizar precio" class="glass-btn p-1.5 rounded-lg text-slate-400 hover:text-white">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="mb-4 bg-dark-900/40 border border-white/5 rounded-xl px-3 py-2.5">
+              <div class="flex justify-between text-[11px] mb-1.5">
+                <span class="text-slate-400">Escenario: cambio en dificultad de red</span>
+                <span class="font-mono text-brand-amber" id="gpu-diff-val">+0%</span>
+              </div>
+              <input type="range" id="gpu-diff-scenario" min="-50" max="150" value="0" step="5"
+                oninput="NETWORK_STATS.gpu.difficultyScenarioPct = parseFloat(this.value); document.getElementById('gpu-diff-val').innerText = (this.value>=0?'+':'')+this.value+'%'; renderHardwareTable(); calculateProfit('gpu');"
+                class="w-full">
+              <p class="text-[10px] text-slate-500 mt-1">Simula el impacto de una dificultad de red mayor o menor sobre tus ingresos futuros.</p>
+            </div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] text-slate-500">Tu granja se guarda automáticamente en este navegador.</span>
+              <button onclick="shareFarmConfig()" class="text-[10px] text-brand-cyan hover:underline flex items-center gap-1">
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342a4 4 0 100-2.684m0 2.684a4 4 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a4 4 0 105.367-5.925 4 4 0 00-5.367 5.925zm0 9.316a4 4 0 105.368 5.925 4 4 0 00-5.368-5.925z"/></svg>
+                Compartir configuración
+              </button>
+            </div>
+            <div class="space-y-2" id="gpu-farm-list"></div>
+          </div>
+
+          <div class="glass p-5 flex flex-col">
+            <h3 class="font-semibold text-white mb-1">Resumen de Rentabilidad</h3>
+            <p class="text-[10px] text-slate-500 mb-4">Watts totales: <span id="gpu-total-watts" class="font-mono text-slate-300">0 W</span></p>
+
+            <div class="grid grid-cols-4 gap-2 text-[10px] text-slate-500 uppercase tracking-wider pb-2 border-b border-white/5">
+              <div></div><div class="text-right">Diario</div><div class="text-right">Semanal</div><div class="text-right">Mensual</div>
+            </div>
+            <div class="grid grid-cols-4 gap-2 items-center py-3 border-b border-white/5">
+              <div class="text-xs text-slate-300 font-semibold">Ingresos</div>
+              <div class="text-right font-mono text-brand-emerald text-xs" id="gpu-rev-day">$0.00</div>
+              <div class="text-right font-mono text-brand-emerald text-xs" id="gpu-rev-week">$0.00</div>
+              <div class="text-right font-mono text-brand-emerald text-xs" id="gpu-rev-month">$0.00</div>
+            </div>
+            <div class="grid grid-cols-4 gap-2 items-center py-3 border-b border-white/5">
+              <div class="text-xs text-slate-300 font-semibold">Costo Eléctrico</div>
+              <div class="text-right font-mono text-brand-coral text-xs" id="gpu-cost-day">$0.00</div>
+              <div class="text-right font-mono text-brand-coral text-xs" id="gpu-cost-week">$0.00</div>
+              <div class="text-right font-mono text-brand-coral text-xs" id="gpu-cost-month">$0.00</div>
+            </div>
+            <div class="grid grid-cols-4 gap-2 items-center py-3 border-b border-white/5">
+              <div class="text-xs text-white font-bold">Beneficio Neto</div>
+              <div class="text-right font-mono font-bold text-brand-cyan text-xs" id="gpu-net-day">$0.00</div>
+              <div class="text-right font-mono font-bold text-brand-cyan text-xs" id="gpu-net-week">$0.00</div>
+              <div class="text-right font-mono font-bold text-brand-cyan text-xs" id="gpu-net-month">$0.00</div>
+            </div>
+            <div class="flex items-center justify-between py-3">
+              <div class="text-xs text-white font-bold">Inversión en hardware</div>
+              <div class="text-right font-mono font-bold text-slate-200 text-xs" id="gpu-investment">$0.00</div>
+            </div>
+            <div class="flex items-center justify-between pb-1">
+              <div class="text-xs text-white font-bold">Payback (recuperas la inversión en)</div>
+              <div class="text-right font-mono font-bold text-brand-emerald text-xs" id="gpu-payback">—</div>
+            </div>
+
+            <div class="mt-4 bg-brand-cyan/10 border border-brand-cyan/20 rounded-xl p-3 text-[11px] text-slate-300">
+              <span class="text-brand-cyan font-semibold">Tip:</span> usa los contadores de la izquierda para añadir GPUs a tu granja. El cálculo se actualiza en tiempo real e incluye ~1% de comisión de pool.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ CPU CALCULATOR ============ -->
+      <div id="content-cpucalc" class="space-y-4 hidden fade-in">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div class="lg:col-span-2 glass p-5">
+            <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+              <h3 class="font-semibold text-white">Granja de CPUs</h3>
+              <div class="flex items-center gap-2 bg-dark-900/60 border border-slate-700 rounded-lg px-3 py-2">
+                <span class="text-[11px] text-slate-400">Costo Eléctrico (/kWh)</span>
+                <input id="cpu-power-cost" type="number" step="0.01" min="0" value="0.12" oninput="calculateProfit('cpu')" class="w-16 bg-transparent text-white text-xs font-mono focus:outline-none text-right">
+                <select id="cpu-currency" onchange="calculateProfit('cpu')" class="bg-dark-900 border-l border-slate-700 pl-2 text-[11px] text-slate-300 focus:outline-none">
+                  <option value="USD">USD</option>
+                  <option value="EUR">EUR</option>
+                  <option value="COP">COP</option>
+                </select>
+              </div>
+            </div>
+            <div id="cpu-price-error-banner" class="hidden mb-4 bg-brand-coral/10 border border-brand-coral/30 rounded-xl px-4 py-3 flex items-center gap-3 text-xs text-brand-coral">
+              <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              <div><span class="font-bold">Sin precio en vivo.</span> No se pudo consultar CoinGecko (límite de peticiones o sin conexión) — todos los ingresos de esta tabla están en $0.00 hasta reconectar.</div>
+            </div>
+            <div class="flex items-center justify-between flex-wrap gap-3 mb-3 bg-dark-900/40 border border-white/5 rounded-xl px-3 py-2.5">
+              <div id="cpu-price-badge" class="flex items-center gap-2 text-[11px] font-mono text-slate-400">
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span> Obteniendo precio de XMR...
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] text-slate-400">Hashrate de red (RandomX)</span>
+                <input id="cpu-network-hashrate" type="number" step="0.1" min="0.1" value="3.2"
+                  oninput="NETWORK_STATS.cpu.networkHashrate = parseFloat(this.value) || NETWORK_STATS.cpu.networkHashrate; renderHardwareTable(); calculateProfit('cpu');"
+                  class="w-16 bg-dark-900 border border-slate-700 rounded px-1.5 py-1 text-white text-xs font-mono text-right focus:outline-none focus:border-brand-cyan">
+                <span class="text-[11px] text-slate-500">GH/s</span>
+                <button onclick="fetchLivePrices()" title="Actualizar precio" class="glass-btn p-1.5 rounded-lg text-slate-400 hover:text-white">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="mb-4 bg-dark-900/40 border border-white/5 rounded-xl px-3 py-2.5">
+              <div class="flex justify-between text-[11px] mb-1.5">
+                <span class="text-slate-400">Escenario: cambio en dificultad de red</span>
+                <span class="font-mono text-brand-amber" id="cpu-diff-val">+0%</span>
+              </div>
+              <input type="range" id="cpu-diff-scenario" min="-50" max="150" value="0" step="5"
+                oninput="NETWORK_STATS.cpu.difficultyScenarioPct = parseFloat(this.value); document.getElementById('cpu-diff-val').innerText = (this.value>=0?'+':'')+this.value+'%'; renderHardwareTable(); calculateProfit('cpu');"
+                class="w-full">
+              <p class="text-[10px] text-slate-500 mt-1">Simula el impacto de una dificultad de red mayor o menor sobre tus ingresos futuros.</p>
+            </div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] text-slate-500">Tu granja se guarda automáticamente en este navegador.</span>
+              <button onclick="shareFarmConfig()" class="text-[10px] text-brand-purple hover:underline flex items-center gap-1">
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342a4 4 0 100-2.684m0 2.684a4 4 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a4 4 0 105.367-5.925 4 4 0 00-5.367 5.925zm0 9.316a4 4 0 105.368 5.925 4 4 0 00-5.368-5.925z"/></svg>
+                Compartir configuración
+              </button>
+            </div>
+            <div class="space-y-2" id="cpu-farm-list"></div>
+          </div>
+
+          <div class="glass p-5 flex flex-col">
+            <h3 class="font-semibold text-white mb-1">Resumen de Rentabilidad</h3>
+            <p class="text-[10px] text-slate-500 mb-4">Watts totales: <span id="cpu-total-watts" class="font-mono text-slate-300">0 W</span></p>
+
+            <div class="grid grid-cols-4 gap-2 text-[10px] text-slate-500 uppercase tracking-wider pb-2 border-b border-white/5">
+              <div></div><div class="text-right">Diario</div><div class="text-right">Semanal</div><div class="text-right">Mensual</div>
+            </div>
+            <div class="grid grid-cols-4 gap-2 items-center py-3 border-b border-white/5">
+              <div class="text-xs text-slate-300 font-semibold">Ingresos</div>
+              <div class="text-right font-mono text-brand-emerald text-xs" id="cpu-rev-day">$0.00</div>
+              <div class="text-right font-mono text-brand-emerald text-xs" id="cpu-rev-week">$0.00</div>
+              <div class="text-right font-mono text-brand-emerald text-xs" id="cpu-rev-month">$0.00</div>
+            </div>
+            <div class="grid grid-cols-4 gap-2 items-center py-3 border-b border-white/5">
+              <div class="text-xs text-slate-300 font-semibold">Costo Eléctrico</div>
+              <div class="text-right font-mono text-brand-coral text-xs" id="cpu-cost-day">$0.00</div>
+              <div class="text-right font-mono text-brand-coral text-xs" id="cpu-cost-week">$0.00</div>
+              <div class="text-right font-mono text-brand-coral text-xs" id="cpu-cost-month">$0.00</div>
+            </div>
+            <div class="grid grid-cols-4 gap-2 items-center py-3 border-b border-white/5">
+              <div class="text-xs text-white font-bold">Beneficio Neto</div>
+              <div class="text-right font-mono font-bold text-brand-purple text-xs" id="cpu-net-day">$0.00</div>
+              <div class="text-right font-mono font-bold text-brand-purple text-xs" id="cpu-net-week">$0.00</div>
+              <div class="text-right font-mono font-bold text-brand-purple text-xs" id="cpu-net-month">$0.00</div>
+            </div>
+            <div class="flex items-center justify-between py-3">
+              <div class="text-xs text-white font-bold">Inversión en hardware</div>
+              <div class="text-right font-mono font-bold text-slate-200 text-xs" id="cpu-investment">$0.00</div>
+            </div>
+            <div class="flex items-center justify-between pb-1">
+              <div class="text-xs text-white font-bold">Payback (recuperas la inversión en)</div>
+              <div class="text-right font-mono font-bold text-brand-emerald text-xs" id="cpu-payback">—</div>
+            </div>
+
+            <div class="mt-4 bg-brand-purple/10 border border-brand-purple/20 rounded-xl p-3 text-[11px] text-slate-300">
+              <span class="text-brand-purple font-semibold">Tip:</span> los rendimientos de CPU se basan en RandomX (Monero). El cálculo incluye ~1% de comisión de pool.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ============ HELP MODAL ============ -->
+<div id="modal-help" class="fixed inset-0 z-50 flex items-center justify-center bg-dark-950/85 backdrop-blur-md hidden p-4">
+  <div class="glass p-8 w-full max-w-2xl relative border border-brand-cyan/20 max-h-[88vh] overflow-y-auto">
+    <button onclick="closeHelp()" class="absolute top-6 right-6 text-slate-400 hover:text-white transition-colors">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+    <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-3">
+      <svg class="w-6 h-6 text-brand-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+      Cómo funciona PrediSys
+    </h3>
+    <p class="text-sm text-slate-400 mb-6">Guía rápida del algoritmo y de la simulación interactiva.</p>
+
+    <div class="space-y-4 text-sm text-slate-300">
+      <div class="bg-dark-900/50 p-4 rounded-xl border border-white/5">
+        <h4 class="font-bold text-brand-cyan mb-1">1. Detección de anomalías (Isolation Forest real)</h4>
+        <p>Cada rig reporta 4 variables: temperatura, hashrate, consumo eléctrico y uso de GPU. En cada ciclo, PrediSys construye un bosque de árboles de aislamiento sobre una muestra reciente de la flota y calcula, para cada rig, la longitud de camino promedio necesaria para aislar su observación. Menos divisiones = más raro = <b>score de anomalía</b> más alto. El bosque se reconstruye periódicamente para adaptarse al comportamiento reciente. La <b>confianza del modelo</b> se deriva del grado de acuerdo entre los árboles del bosque, y el <b>TTF (Tiempo Estimado de Falla)</b> se proyecta a partir del score actual y su cercanía a los umbrales.</p>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-dark-900/50 p-4 rounded-xl border border-white/5">
+          <h4 class="font-bold text-white mb-1">Variables base (normales)</h4>
+          <ul class="list-disc list-inside space-y-1 text-xs text-slate-400">
+            <li><span class="text-brand-coral">Temp:</span> ~60–68°C</li>
+            <li><span class="text-brand-cyan">Hashrate:</span> ~95–105 TH/s</li>
+            <li><span class="text-brand-purple">Potencia:</span> ~2900–3100 W</li>
+            <li><span class="text-brand-emerald">Uso GPU:</span> ~90–96%</li>
+          </ul>
+        </div>
+        <div class="bg-dark-900/50 p-4 rounded-xl border border-white/5">
+          <h4 class="font-bold text-white mb-1">Umbrales (ajustables en Perfil)</h4>
+          <ul class="list-disc list-inside space-y-1 text-xs text-slate-400">
+            <li>Score &gt; umbral de advertencia: Amarillo</li>
+            <li>Score &gt; umbral de riesgo: Rojo</li>
+            <li>Se aplican también sobre cada gráfica de tendencia como bandas de color</li>
+            <li>Se guardan en este navegador con <code class="text-slate-300">localStorage</code> (clave <code class="text-slate-300">predisys.thresholds</code>)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="bg-dark-900/50 p-4 rounded-xl border border-brand-purple/20">
+        <h4 class="font-bold text-brand-purple mb-1">2. Simulación interactiva</h4>
+        <p>Entra a cualquier máquina (Rig-01 a Rig-10) desde el menú lateral y usa los botones de <b>Inyectar Anomalía</b> con la intensidad deseada (leve, moderada, severa). Verás cómo las variables se desvían, el radar se deforma y el score sube en tiempo real hasta cruzar los umbrales. "Restaurar Estado Normal" limpia la falla inyectada.</p>
+      </div>
+      <div class="bg-dark-900/50 p-4 rounded-xl border border-white/5">
+        <h4 class="font-bold text-white mb-1">3. Analítica ML</h4>
+        <p>La pestaña <b>Analítica ML</b> muestra la dispersión de toda la flota (temperatura vs potencia) coloreada por estado, y un ranking del score actual de cada rig — una forma visual de ver qué máquinas se están aislando del comportamiento normal del grupo.</p>
+      </div>
+      <div class="bg-dark-900/50 p-4 rounded-xl border border-white/5">
+        <h4 class="font-bold text-white mb-1">4. Informe PDF</h4>
+        <p>El menú "Exportar Informe" ofrece dos formatos: un <b>PDF</b> ejecutivo con el resumen de la flota, gráfica de tendencia térmica y tabla de equipos priorizados por riesgo; y un <b>CSV</b> con los datos en bruto de los 10 rigs, listo para abrir en Excel.</p>
+      </div>
+      <p class="text-[11px] text-slate-500">Nota: los datos de telemetría son sintéticos y se generan localmente en tu navegador con fines de demostración.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+const NUM_RIGS = 10;
+const HISTORY_LENGTH = 60;
+const ISO_TREES = 60;
+const ISO_SAMPLE = 48;
+const ISO_REBUILD_EVERY = 5;
+
+let rigs = [];
+let selectedRigId = null;
+let currentView = 'dashboard'; // dashboard | rig | analytics | profile | hardware | gpucalc | cpucalc
+let tickInterval;
+let currentIntensity = 'moderate';
+let sidebarFilter = '';
+let sidebarSortByScore = false;
+let activityLog = [];
+let notifications = [];
+let unreadNotifCount = 0;
+let sessionStart = null;
+
+let settings = { warnThreshold: 40, riskThreshold: 75, tickMs: 1500, toastEnabled: true };
+
+const THRESHOLDS_STORAGE_KEY = 'predisys.thresholds';
+
+// Carga umbrales guardados previamente en este navegador (si existen)
+function loadThresholdsFromStorage() {
+  try {
+    const raw = localStorage.getItem(THRESHOLDS_STORAGE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (typeof parsed.warnThreshold === 'number') settings.warnThreshold = parsed.warnThreshold;
+    if (typeof parsed.riskThreshold === 'number') settings.riskThreshold = parsed.riskThreshold;
+  } catch (e) {
+    console.warn('No se pudieron leer los umbrales guardados en localStorage:', e);
+  }
+}
+
+// Persiste los umbrales actuales bajo la clave predisys.thresholds
+function saveThresholdsToStorage() {
+  try {
+    localStorage.setItem(THRESHOLDS_STORAGE_KEY, JSON.stringify({
+      warnThreshold: settings.warnThreshold,
+      riskThreshold: settings.riskThreshold
+    }));
+  } catch (e) {
+    console.warn('No se pudo guardar en localStorage:', e);
+  }
+}
+
+loadThresholdsFromStorage();
+
+let isoForest = null;
+let isoRebuildCounter = 0;
+let isoTicksToRebuild = ISO_REBUILD_EVERY;
+let scoreRange = { min: 0.40, max: 0.62 };
+
+for (let i = 1; i <= NUM_RIGS; i++) {
+  rigs.push({
+    id: i,
+    name: `Rig-${i.toString().padStart(2,'0')}`,
+    model: i % 3 === 0 ? 'WhatsMiner M50' : 'Antminer S19 Pro',
+    baseTemp: 60 + Math.random() * 8,
+    baseHash: 95 + Math.random() * 10,
+    basePower: 2900 + Math.random() * 200,
+    baseGpu: 90 + Math.random() * 6,
+    fault: null,
+    faultIntensity: 1,
+    score: 0,
+    prevStatus: 'ok',
+    status: 'ok',
+    history: { temp: [], hash: [], power: [], gpu: [], score: [] }
+  });
+}
+rigs.forEach(rig => {
+  for (let j = 0; j < HISTORY_LENGTH; j++) {
+    rig.history.temp.push(rig.baseTemp + (Math.random()*2-1));
+    rig.history.hash.push(rig.baseHash + (Math.random()*2-1));
+    rig.history.power.push(rig.basePower + (Math.random()*20-10));
+    rig.history.gpu.push(rig.baseGpu + (Math.random()*2-1));
+    rig.history.score.push(6 + Math.random()*10);
+  }
+});
+
+// ============================================================
+// ISOLATION FOREST
+// ============================================================
+const ISO_FEATURES = 4; // temperatura, hashrate, potencia, uso de GPU
+
+function samplePool() {
+  const pool = [];
+  rigs.forEach(r => {
+    for (let k = HISTORY_LENGTH - 20; k < HISTORY_LENGTH; k++) {
+      pool.push([r.history.temp[k], r.history.hash[k], r.history.power[k], r.history.gpu[k]]);
+    }
+  });
+  return pool;
+}
+
+function buildIsoTree(X, depth, maxDepth) {
+  if (depth >= maxDepth || X.length <= 1) return { leaf:true, size:X.length };
+  const feature = Math.floor(Math.random()*ISO_FEATURES);
+  let min = Infinity, max = -Infinity;
+  for (const row of X) { const v = row[feature]; if (v<min) min=v; if (v>max) max=v; }
+  if (min === max) return { leaf:true, size:X.length };
+  const splitVal = min + Math.random()*(max-min);
+  const left = [], right = [];
+  for (const row of X) { (row[feature] < splitVal ? left : right).push(row); }
+  if (left.length===0 || right.length===0) return { leaf:true, size:X.length };
+  return { leaf:false, feature, splitVal, left: buildIsoTree(left, depth+1, maxDepth), right: buildIsoTree(right, depth+1, maxDepth) };
+}
+
+function cFactor(n) {
+  if (n <= 1) return 0;
+  return 2*(Math.log(n-1) + 0.5772156649) - (2*(n-1)/n);
+}
+
+function pathLength(row, node, depth) {
+  if (node.leaf) return depth + cFactor(node.size);
+  return row[node.feature] < node.splitVal
+    ? pathLength(row, node.left, depth+1)
+    : pathLength(row, node.right, depth+1);
+}
+
+function buildIsoForest() {
+  const pool = samplePool();
+  const psi = Math.min(ISO_SAMPLE, pool.length);
+  const maxDepth = Math.ceil(Math.log2(Math.max(2, psi)));
+  const trees = [];
+  for (let i = 0; i < ISO_TREES; i++) {
+    const shuffled = pool.slice().sort(() => Math.random() - 0.5);
+    trees.push(buildIsoTree(shuffled.slice(0, psi), 0, maxDepth));
+  }
+  isoForest = { trees, psi };
+}
+
+function isoScoreDetailed(row) {
+  if (!isoForest) return { raw: 0.5, confidence: 60 };
+  const lengths = isoForest.trees.map(t => pathLength(row, t, 0));
+  const avgH = lengths.reduce((a,b) => a+b, 0) / lengths.length;
+  const cN = cFactor(isoForest.psi);
+  const raw = cN === 0 ? 0.5 : Math.pow(2, -avgH/cN);
+  const variance = lengths.reduce((a,v) => a + Math.pow(v-avgH,2), 0) / lengths.length;
+  const std = Math.sqrt(variance);
+  const confidence = Math.min(99, Math.max(58, Math.round(100 - std*11)));
+  return { raw, confidence };
+}
+
+function isoRawScore(row) {
+  return isoScoreDetailed(row).raw;
+}
+
+function scaleScore(raw) {
+  if (raw < scoreRange.min) scoreRange.min = raw - 0.01;
+  if (raw > scoreRange.max) scoreRange.max = raw + 0.01;
+  const pct = (raw - scoreRange.min) / (scoreRange.max - scoreRange.min) * 100;
+  return Math.min(100, Math.max(0, pct));
+}
+
+function estimateTTF(score) {
+  if (score <= settings.warnThreshold) return { label: '> 7 días', hours: 999 };
+  if (score <= settings.riskThreshold) {
+    const t = (score - settings.warnThreshold) / (settings.riskThreshold - settings.warnThreshold);
+    const hours = Math.round(72 - t*60);
+    return { label: `~${hours} h`, hours };
+  }
+  const t = (score - settings.riskThreshold) / (100 - settings.riskThreshold);
+  const hours = Math.max(1, Math.round(12 - t*11));
+  return { label: `~${hours} h`, hours };
+}
+
+function calibrateSeed() {
+  buildIsoForest();
+  const scores = rigs.map(r => isoRawScore([
+    r.history.temp[HISTORY_LENGTH-1], r.history.hash[HISTORY_LENGTH-1], r.history.power[HISTORY_LENGTH-1], r.history.gpu[HISTORY_LENGTH-1]
+  ]));
+  scoreRange.min = Math.min(...scores) - 0.02;
+  scoreRange.max = Math.max(...scores) + 0.14;
+}
+
+// ============================================================
+// DOM REFS
+// ============================================================
+const els = {
+  login: document.getElementById('view-login'),
+  app: document.getElementById('view-app'),
+  dashView: document.getElementById('content-dashboard'),
+  rigView: document.getElementById('content-rig'),
+  analyticsView: document.getElementById('content-analytics'),
+  profileView: document.getElementById('content-profile'),
+  hardwareView: document.getElementById('content-hardware'),   // NUEVO
+  gpucalcView: document.getElementById('content-gpucalc'),     // NUEVO
+  cpucalcView: document.getElementById('content-cpucalc'),     // NUEVO
+  sidebarRigs: document.getElementById('sidebar-rigs'),
+  dashGrid: document.getElementById('dash-grid'),
+  headerTitle: document.getElementById('header-title'),
+  headerSubtitle: document.getElementById('header-subtitle'),
+  modalHelp: document.getElementById('modal-help')
+};
+
+// ============================================================
+// AUTH & NAV
+// ============================================================
+function doLogin() {
+  sessionStart = new Date();
+  els.login.classList.add('opacity-0');
+  setTimeout(() => {
+    els.login.style.display = 'none';
+    els.app.classList.remove('hidden');
+    calibrateSeed();
+    loadFarmFromUrlParams();
+    logActivity('Inicio de sesión', 'info');
+    startSimulation();
+    showDashboard();
+  }, 500);
+}
+
+function togglePasswordVisibility() {
+  const input = document.getElementById('login-password');
+  const btn = document.getElementById('pw-toggle-btn');
+  const isPw = input.type === 'password';
+  input.type = isPw ? 'text' : 'password';
+  btn.innerText = isPw ? 'Ocultar' : 'Ver';
+}
+
+function showRegisterNote(evt) {
+  evt.preventDefault();
+  document.getElementById('register-note').classList.remove('hidden');
+}
+
+function logout() {
+  stopSimulation();
+  logActivity('Cierre de sesión', 'info');
+  els.app.classList.add('hidden');
+  els.login.style.display = 'flex';
+  setTimeout(() => els.login.classList.remove('opacity-0'), 50);
+}
+
+// ============================================================
+// SIDEBAR MÓVIL (hamburguesa)
+// ============================================================
+function openMobileSidebar() {
+  document.getElementById('app-sidebar')?.classList.remove('-translate-x-[calc(100%+1rem)]');
+  document.getElementById('sidebar-overlay')?.classList.remove('hidden');
+}
+function closeMobileSidebar() {
+  const sidebar = document.getElementById('app-sidebar');
+  if (sidebar && window.innerWidth < 1024) sidebar.classList.add('-translate-x-[calc(100%+1rem)]');
+  document.getElementById('sidebar-overlay')?.classList.add('hidden');
+}
+function toggleMobileSidebar() {
+  const sidebar = document.getElementById('app-sidebar');
+  if (!sidebar) return;
+  if (sidebar.classList.contains('-translate-x-[calc(100%+1rem)]')) openMobileSidebar();
+  else closeMobileSidebar();
+}
+
+// ============================================================
+// MODO CLARO / OSCURO
+// ============================================================
+const THEME_STORAGE_KEY = 'predisys.theme';
+function applyThemeMode(mode) {
+  const isLight = mode === 'light';
+  document.documentElement.classList.toggle('dark', !isLight);
+  document.documentElement.classList.toggle('light', isLight);
+  document.getElementById('theme-icon-moon')?.classList.toggle('hidden', isLight);
+  document.getElementById('theme-icon-sun')?.classList.toggle('hidden', !isLight);
+}
+function toggleThemeMode() {
+  const next = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+  applyThemeMode(next);
+  try { localStorage.setItem(THEME_STORAGE_KEY, next); } catch (e) {}
+}
+function loadThemeFromStorage() {
+  let mode = 'dark';
+  try { mode = localStorage.getItem(THEME_STORAGE_KEY) || 'dark'; } catch (e) {}
+  applyThemeMode(mode);
+}
+loadThemeFromStorage();
+
+function setActiveNav(view) {
+  ['dashboard','analytics','profile','hardware','gpucalc','cpucalc'].forEach(v => {
+    const btn = document.getElementById('nav-btn-'+v);
+    if(btn) btn.classList.toggle('active', v === view);
+  });
+}
+
+function hideAllViews() {
+  els.dashView.classList.add('hidden');
+  els.rigView.classList.add('hidden');
+  els.analyticsView.classList.add('hidden');
+  els.profileView.classList.add('hidden');
+  els.hardwareView.classList.add('hidden');    // NUEVO
+  els.gpucalcView.classList.add('hidden');     // NUEVO
+  els.cpucalcView.classList.add('hidden');     // NUEVO
+}
+
+function showDashboard() {
+  currentView = 'dashboard'; selectedRigId = null;
+  els.headerTitle.innerHTML = 'Vista General de Flota';
+  els.headerSubtitle.innerText = 'Inteligencia predictiva basada en Isolation Forest sobre telemetría en tiempo real.';
+  hideAllViews(); els.dashView.classList.remove('hidden');
+  setActiveNav('dashboard');
+  renderSidebar(); renderDashboard();
+  closeMobileSidebar();
+}
+
+function showAnalytics() {
+  currentView = 'analytics'; selectedRigId = null;
+  els.headerTitle.innerHTML = 'Analítica ML';
+  els.headerSubtitle.innerText = 'Visualización directa del comportamiento del bosque de aislamiento sobre la flota.';
+  hideAllViews(); els.analyticsView.classList.remove('hidden');
+  setActiveNav('analytics');
+  renderSidebar(); renderAnalytics();
+  closeMobileSidebar();
+}
+
+function showProfile() {
+  currentView = 'profile'; selectedRigId = null;
+  els.headerTitle.innerHTML = 'Perfil &amp; Preferencias';
+  els.headerSubtitle.innerText = 'Ajusta umbrales, velocidad de simulación y revisa tu actividad reciente.';
+  hideAllViews(); els.profileView.classList.remove('hidden');
+  setActiveNav('profile');
+  renderSidebar(); renderProfile();
+  closeMobileSidebar();
+}
+
+function showRig(id) {
+  currentView = 'rig'; selectedRigId = id;
+  const rig = rigs.find(r => r.id === id);
+  const stCls = rig.status === 'risk' ? 'bg-brand-coral/20 text-brand-coral border-brand-coral/30' :
+                (rig.status === 'warn' ? 'bg-brand-amber/20 text-brand-amber border-brand-amber/30' : 'bg-brand-emerald/20 text-brand-emerald border-brand-emerald/30');
+  els.headerTitle.innerHTML = `${rig.name} <span class="text-[10px] px-2 py-0.5 rounded-full font-bold border ${stCls} ml-3 uppercase">${rig.status==='ok'?'Normal':rig.status}</span>`;
+  els.headerSubtitle.innerText = `${rig.model} · Inyecta fallas o restaura el estado para observar el modelo en vivo.`;
+  hideAllViews(); els.rigView.classList.remove('hidden');
+  setActiveNav('');
+  setIntensity(currentIntensity);
+  renderSidebar(); renderRig();
+  closeMobileSidebar();
+}
+
+// ============================================================
+// MINERÍA: HARDWARE DB, GRANJAS Y CALCULADORAS
+// ============================================================
+const hardwareDB = [
+  // GPUs — hashrate/consumo simulados; algoritmo y precio (ERG) se usan para el cálculo en vivo
+  // priceUsd = precio de compra aproximado (editable por el usuario en la UI), usado para el payback period
+  { id:'rtx4090',      name:'NVIDIA RTX 4090',      type:'gpu', algo:'Autolykos2 (ERG)', hashrate:1350, hashUnit:'MH/s', watts:290, priceUsd:1599 },
+  { id:'rtx4080',      name:'NVIDIA RTX 4080',      type:'gpu', algo:'Autolykos2 (ERG)', hashrate:960,  hashUnit:'MH/s', watts:250, priceUsd:1099 },
+  { id:'rtx3090',      name:'NVIDIA RTX 3090',       type:'gpu', algo:'Autolykos2 (ERG)', hashrate:850,  hashUnit:'MH/s', watts:300, priceUsd:899 },
+  { id:'rtx3080',      name:'NVIDIA RTX 3080',       type:'gpu', algo:'Autolykos2 (ERG)', hashrate:760,  hashUnit:'MH/s', watts:220, priceUsd:549 },
+  { id:'rtx3070',      name:'NVIDIA RTX 3070',       type:'gpu', algo:'Autolykos2 (ERG)', hashrate:480,  hashUnit:'MH/s', watts:130, priceUsd:349 },
+  { id:'rtx3060ti',    name:'NVIDIA RTX 3060 Ti',    type:'gpu', algo:'Autolykos2 (ERG)', hashrate:420,  hashUnit:'MH/s', watts:120, priceUsd:299 },
+  { id:'rx6800xt',     name:'AMD RX 6800 XT',        type:'gpu', algo:'Autolykos2 (ERG)', hashrate:620,  hashUnit:'MH/s', watts:190, priceUsd:429 },
+  { id:'rx5700xt',     name:'AMD RX 5700 XT',        type:'gpu', algo:'Autolykos2 (ERG)', hashrate:380,  hashUnit:'MH/s', watts:130, priceUsd:199 },
+
+  // CPUs — hashrate/consumo simulados; algoritmo y precio (XMR) se usan para el cálculo en vivo
+  { id:'ryzen9_7950x',    name:'AMD Ryzen 9 7950X',    type:'cpu', algo:'RandomX (XMR)', hashrate:21.5, hashUnit:'kH/s', watts:170, priceUsd:549 },
+  { id:'ryzen9_5950x',    name:'AMD Ryzen 9 5950X',    type:'cpu', algo:'RandomX (XMR)', hashrate:16.2, hashUnit:'kH/s', watts:145, priceUsd:349 },
+  { id:'ryzen7_5800x',    name:'AMD Ryzen 7 5800X',    type:'cpu', algo:'RandomX (XMR)', hashrate:9.6,  hashUnit:'kH/s', watts:105, priceUsd:219 },
+  { id:'intel_i9_13900k', name:'Intel Core i9-13900K', type:'cpu', algo:'RandomX (XMR)', hashrate:14.8, hashUnit:'kH/s', watts:190, priceUsd:589 },
+];
+
+const FARM_STORAGE_KEY = 'predisys.miningFarm';
+
+function loadFarmFromStorage() {
+  try {
+    const raw = localStorage.getItem(FARM_STORAGE_KEY);
+    if (!raw) return { gpu: {}, cpu: {} };
+    const parsed = JSON.parse(raw);
+    return { gpu: parsed.gpu || {}, cpu: parsed.cpu || {} };
+  } catch (e) {
+    console.warn('No se pudo leer la granja guardada en localStorage:', e);
+    return { gpu: {}, cpu: {} };
+  }
+}
+
+function saveFarmToStorage() {
+  try { localStorage.setItem(FARM_STORAGE_KEY, JSON.stringify(miningFarm)); }
+  catch (e) { console.warn('No se pudo guardar la granja en localStorage:', e); }
+}
+
+const miningFarm = loadFarmFromStorage(); // { deviceId: cantidad }, persistida entre sesiones
+
+// ============================================================
+// PRECIOS EN VIVO (CoinGecko, API pública sin clave)
+// ============================================================
+const UNIT_TO_HS = { 'H/s':1, 'kH/s':1e3, 'MH/s':1e6, 'GH/s':1e9, 'TH/s':1e12 };
+
+function toHs(value, unit) {
+  return value * (UNIT_TO_HS[unit] || 1);
+}
+
+const NETWORK_STATS = {
+  gpu: {
+    coingeckoId: 'ergo',
+    ticker: 'ERG',
+    // Referencia para actualizar manualmente: https://www.hashrate.no/coins o https://explorer.ergoplatform.com
+    networkHashrate: 15,
+    networkHashrateUnit: 'TH/s',
+    blockRewardCoins: 24,
+    blockTimeSeconds: 120,
+    priceUsd: null,
+    difficultyScenarioPct: 0 // simula "¿qué pasa si la dificultad de red sube/baja X%?"
+  },
+  cpu: {
+    coingeckoId: 'monero',
+    ticker: 'XMR',
+    // Referencia para actualizar manualmente: https://www.hashrate.no/coins o un explorador de Monero
+    networkHashrate: 3.2,
+    networkHashrateUnit: 'GH/s',
+    blockRewardCoins: 0.6,
+    blockTimeSeconds: 120,
+    priceUsd: null,
+    difficultyScenarioPct: 0
+  }
+};
+
+// Comisión de pool típica (referencia: hashrate.no y pools públicos ~1%)
+const POOL_FEE_PCT = 0.01;
+
+// Ingreso diario estimado = (tu hashrate / hashrate de red efectiva) * bloques/día * recompensa * precio, neto de comisión de pool
+function computeDailyIncome(device) {
+  const stats = NETWORK_STATS[device.type];
+  // La dificultad de red es proporcional al hashrate de red: un +20% de dificultad ≈ un +20% de hashrate de red
+  const effectiveNetworkHashrate = stats.networkHashrate * (1 + (stats.difficultyScenarioPct || 0) / 100);
+  const networkHs = toHs(effectiveNetworkHashrate, stats.networkHashrateUnit);
+
+  if (!stats.priceUsd || !networkHs) return 0;
+
+  const deviceHs = toHs(device.hashrate, device.hashUnit);
+  const share = deviceHs / networkHs;
+  const blocksPerDay = 86400 / stats.blockTimeSeconds;
+  const coinsPerDay = share * blocksPerDay * stats.blockRewardCoins;
+
+  return coinsPerDay * stats.priceUsd * (1 - POOL_FEE_PCT);
+}
+
+// Caché corto para blindar contra el rate limit de la API keyless de CoinGecko (~10-30 req/min).
+// Si varias pestañas están abiertas, todas comparten este caché vía localStorage.
+const PRICE_CACHE_KEY = 'predisys.priceCache';
+const PRICE_CACHE_TTL_MS = 60 * 1000; // 60s
+let lastPriceFetchFailed = false;
+
+function readPriceCache() {
+  try {
+    const raw = localStorage.getItem(PRICE_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed.ts || Date.now() - parsed.ts > PRICE_CACHE_TTL_MS) return null;
+    return parsed;
+  } catch (e) { return null; }
+}
+
+function writePriceCache(gpuPrice, cpuPrice) {
+  try {
+    localStorage.setItem(PRICE_CACHE_KEY, JSON.stringify({ ts: Date.now(), gpuPrice, cpuPrice }));
+  } catch (e) { /* ignorar cuota de localStorage */ }
+}
+
+async function fetchLivePrices() {
+  // 1) Si hay un precio en caché de menos de 60s (de esta u otra pestaña), úsalo y evita la petición.
+  const cached = readPriceCache();
+  if (cached) {
+    NETWORK_STATS.gpu.priceUsd = cached.gpuPrice ?? NETWORK_STATS.gpu.priceUsd;
+    NETWORK_STATS.cpu.priceUsd = cached.cpuPrice ?? NETWORK_STATS.cpu.priceUsd;
+    lastPriceFetchFailed = false;
+    updatePriceBadges('live');
+    finishPriceRefresh();
+    return;
+  }
+
+  updatePriceBadges('loading');
+
+  try {
+    const ids = `${NETWORK_STATS.gpu.coingeckoId},${NETWORK_STATS.cpu.coingeckoId}`;
+    const res = await fetch(
+      `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`
+    );
+
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+
+    const data = await res.json();
+
+    NETWORK_STATS.gpu.priceUsd =
+      data[NETWORK_STATS.gpu.coingeckoId]?.usd ?? NETWORK_STATS.gpu.priceUsd;
+
+    NETWORK_STATS.cpu.priceUsd =
+      data[NETWORK_STATS.cpu.coingeckoId]?.usd ?? NETWORK_STATS.cpu.priceUsd;
+
+    writePriceCache(NETWORK_STATS.gpu.priceUsd, NETWORK_STATS.cpu.priceUsd);
+    lastPriceFetchFailed = false;
+    updatePriceBadges('live');
+  } catch (err) {
+    console.warn('No se pudo obtener el precio en vivo:', err);
+    lastPriceFetchFailed = true;
+    updatePriceBadges('error');
+  }
+
+  finishPriceRefresh();
+}
+
+function finishPriceRefresh() {
+  renderHardwareTable();
+  if (currentView === 'hardware') renderHardwareCompare();
+
+  if (currentView === 'gpucalc') {
+    renderFarmList('gpu');
+    calculateProfit('gpu');
+  }
+
+  if (currentView === 'cpucalc') {
+    renderFarmList('cpu');
+    calculateProfit('cpu');
+  }
+
+  updatePriceErrorBanners();
+}
+
+function updatePriceBadges(state) {
+  const gpuBadge = document.getElementById('gpu-price-badge');
+  const cpuBadge = document.getElementById('cpu-price-badge');
+
+  const dot = (cls) =>
+    `<span class="w-1.5 h-1.5 rounded-full ${cls}"></span>`;
+
+  if (gpuBadge) {
+    if (state === 'live' && NETWORK_STATS.gpu.priceUsd) {
+      gpuBadge.innerHTML =
+        `${dot('bg-brand-emerald animate-pulse')} ERG en vivo: $${NETWORK_STATS.gpu.priceUsd.toFixed(4)}`;
+    } else if (state === 'loading') {
+      gpuBadge.innerHTML =
+        `${dot('bg-slate-600 animate-pulse')} Obteniendo precio de ERG...`;
+    } else {
+      gpuBadge.innerHTML =
+        `${dot('bg-brand-amber')} Sin conexión · ingreso en $0.00 hasta reconectar`;
+    }
+  }
+
+  if (cpuBadge) {
+    if (state === 'live' && NETWORK_STATS.cpu.priceUsd) {
+      cpuBadge.innerHTML =
+        `${dot('bg-brand-emerald animate-pulse')} XMR en vivo: $${NETWORK_STATS.cpu.priceUsd.toFixed(2)}`;
+    } else if (state === 'loading') {
+      cpuBadge.innerHTML =
+        `${dot('bg-slate-600 animate-pulse')} Obteniendo precio de XMR...`;
+    } else {
+      cpuBadge.innerHTML =
+        `${dot('bg-brand-amber')} Sin conexión · ingreso en $0.00 hasta reconectar`;
+    }
+  }
+}
+
+function updatePriceErrorBanners() {
+  ['gpu','cpu'].forEach(type => {
+    const banner = document.getElementById(`${type}-price-error-banner`);
+    if (!banner) return;
+    const stats = NETWORK_STATS[type];
+    const shouldShow = lastPriceFetchFailed && !stats.priceUsd;
+    banner.classList.toggle('hidden', !shouldShow);
+  });
+}
+
+// Refresca el precio cada 5 minutos mientras la app está abierta
+setInterval(fetchLivePrices, 5 * 60 * 1000);
+
+function showHardware() {
+  currentView = 'hardware'; selectedRigId = null;
+  els.headerTitle.innerHTML = 'Base de Datos de Hardware';
+  els.headerSubtitle.innerText = 'Especificaciones, algoritmo más rentable y rendimiento estimado por dispositivo.';
+  hideAllViews(); els.hardwareView.classList.remove('hidden');
+  setActiveNav('hardware');
+  renderSidebar(); renderHardwareTable();
+  populateCompareDropdowns(); renderHardwareCompare();
+  fetchLivePrices();
+  closeMobileSidebar();
+}
+
+function showGpuCalc() {
+  currentView = 'gpucalc'; selectedRigId = null;
+  els.headerTitle.innerHTML = 'Calculadora de Minería GPU';
+  els.headerSubtitle.innerText = 'Estima ingresos, costos y beneficio neto de tu granja de GPUs.';
+  hideAllViews(); els.gpucalcView.classList.remove('hidden');
+  setActiveNav('gpucalc');
+  renderSidebar(); renderFarmList('gpu'); calculateProfit('gpu');
+  fetchLivePrices(); fetchFxRates().then(() => calculateProfit('gpu'));
+  closeMobileSidebar();
+}
+
+function showCpuCalc() {
+  currentView = 'cpucalc'; selectedRigId = null;
+  els.headerTitle.innerHTML = 'Calculadora de Minería CPU';
+  els.headerSubtitle.innerText = 'Estima ingresos, costos y beneficio neto de tu granja de CPUs (RandomX / Monero).';
+  hideAllViews(); els.cpucalcView.classList.remove('hidden');
+  setActiveNav('cpucalc');
+  renderSidebar(); renderFarmList('cpu'); calculateProfit('cpu');
+  fetchLivePrices(); fetchFxRates().then(() => calculateProfit('cpu'));
+  closeMobileSidebar();
+}
+
+function populateCompareDropdowns() {
+  const selA = document.getElementById('compare-device-a');
+  const selB = document.getElementById('compare-device-b');
+  if (!selA || !selB) return;
+  if (selA.options.length) return; // ya poblados
+  const optHtml = hardwareDB.map(d => `<option value="${d.id}">${d.type.toUpperCase()} · ${d.name}</option>`).join('');
+  selA.innerHTML = optHtml;
+  selB.innerHTML = optHtml;
+  selA.value = hardwareDB[0].id;
+  selB.value = hardwareDB[1].id;
+}
+
+function renderHardwareCompare() {
+  populateCompareDropdowns();
+  const idA = document.getElementById('compare-device-a')?.value;
+  const idB = document.getElementById('compare-device-b')?.value;
+  const a = hardwareDB.find(d => d.id === idA);
+  const b = hardwareDB.find(d => d.id === idB);
+  const container = document.getElementById('compare-result');
+  if (!a || !b || !container) return;
+
+  const effA = a.hashrate / a.watts, effB = b.hashrate / b.watts;
+  const incA = computeDailyIncome(a), incB = computeDailyIncome(b);
+
+  const rows = [
+    ['Algoritmo', a.algo, b.algo],
+    ['Hashrate', `${a.hashrate} ${a.hashUnit}`, `${b.hashrate} ${b.hashUnit}`],
+    ['Consumo', `${a.watts} W`, `${b.watts} W`],
+    ['Eficiencia', `${effA.toFixed(2)} ${a.hashUnit}/W`, `${effB.toFixed(2)} ${b.hashUnit}/W`],
+    ['Precio de compra', `$${(a.priceUsd||0).toLocaleString('es-ES')}`, `$${(b.priceUsd||0).toLocaleString('es-ES')}`],
+    ['Ingreso diario', `$${incA.toFixed(2)}`, `$${incB.toFixed(2)}`],
+    ['$ por día invertido', a.priceUsd ? `${(incA/a.priceUsd*100).toFixed(3)}%` : '—', b.priceUsd ? `${(incB/b.priceUsd*100).toFixed(3)}%` : '—'],
+  ];
+
+  const winnerCell = (valA, valB, higherIsBetter=true) => {
+    if (valA === valB) return ['', ''];
+    const aWins = higherIsBetter ? valA > valB : valA < valB;
+    return aWins ? ['text-brand-emerald font-bold', ''] : ['', 'text-brand-emerald font-bold'];
+  };
+
+  container.innerHTML = `
+    <table class="w-full text-left text-xs">
+      <thead>
+        <tr class="text-slate-500 uppercase tracking-wider text-[10px] border-b border-white/5">
+          <th class="py-2.5 pr-4 font-semibold">Métrica</th>
+          <th class="py-2.5 pr-4 font-semibold text-brand-cyan">${a.name}</th>
+          <th class="py-2.5 pr-0 font-semibold text-brand-purple">${b.name}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-white/5">
+        ${rows.map(([label, valA, valB], idx) => {
+          let clsA = '', clsB = '';
+          if (idx === 3) [clsA, clsB] = winnerCell(effA, effB, true);
+          if (idx === 5) [clsA, clsB] = winnerCell(incA, incB, true);
+          if (idx === 4) [clsA, clsB] = winnerCell(a.priceUsd||Infinity, b.priceUsd||Infinity, false);
+          return `<tr>
+            <td class="py-2.5 pr-4 text-slate-400 font-semibold">${label}</td>
+            <td class="py-2.5 pr-4 font-mono text-slate-200 ${clsA}">${valA}</td>
+            <td class="py-2.5 pr-0 font-mono text-slate-200 ${clsB}">${valB}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+function renderHardwareTable() {
+  const q = (document.getElementById('hardware-search')?.value || '').toLowerCase();
+  const tbody = document.getElementById('hardware-table-body');
+  const rows = hardwareDB.filter(d => d.name.toLowerCase().includes(q) || d.algo.toLowerCase().includes(q));
+  tbody.innerHTML = rows.length ? rows.map(d => {
+    const eff = (d.hashrate / d.watts).toFixed(2);
+    const badge = d.type === 'gpu'
+      ? `<span class="text-[9px] px-1.5 py-0.5 rounded bg-brand-cyan/10 text-brand-cyan font-bold uppercase">GPU</span>`
+      : `<span class="text-[9px] px-1.5 py-0.5 rounded bg-brand-purple/10 text-brand-purple font-bold uppercase">CPU</span>`;
+    return `
+      <tr class="hover:bg-white/[0.02]">
+        <td class="py-3 pr-4"><div class="flex items-center gap-2">${badge}<span class="text-white font-semibold">${d.name}</span></div></td>
+        <td class="py-3 pr-4 text-slate-300">${d.algo}</td>
+        <td class="py-3 pr-4 font-mono text-slate-200">${d.hashrate} ${d.hashUnit}</td>
+        <td class="py-3 pr-4 font-mono text-slate-400">${d.watts} W</td>
+        <td class="py-3 pr-4 font-mono text-brand-amber">${eff} ${d.hashUnit}/W</td>
+        <td class="py-3 pr-0 text-right font-mono text-brand-emerald font-semibold">$${computeDailyIncome(d).toFixed(2)}</td>
+      </tr>`;
+  }).join('') : `<tr><td colspan="6" class="py-6 text-center text-slate-500">Sin resultados</td></tr>`;
+}
+
+function renderFarmList(type) {
+  const container = document.getElementById(type === 'gpu' ? 'gpu-farm-list' : 'cpu-farm-list');
+  const devices = hardwareDB.filter(d => d.type === type);
+  container.innerHTML = devices.map(d => {
+    const qty = miningFarm[type][d.id] || 0;
+    return `
+      <div class="glass-btn rounded-xl px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <div class="text-sm font-semibold text-white">${d.name}</div>
+          <div class="text-[10px] text-slate-400 font-mono">${d.algo} · ${d.hashrate} ${d.hashUnit} · ${d.watts} W · $${d.priceUsd?.toLocaleString('es-ES') ?? '—'} c/u</div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="adjustFarmQty('${type}','${d.id}',-1)" class="w-7 h-7 rounded-lg bg-dark-900 border border-slate-700 text-white hover:bg-white/10 flex items-center justify-center font-bold">−</button>
+          <span class="w-6 text-center font-mono text-sm text-brand-cyan" id="qty-${type}-${d.id}">${qty}</span>
+          <button onclick="adjustFarmQty('${type}','${d.id}',1)" class="w-7 h-7 rounded-lg bg-dark-900 border border-slate-700 text-white hover:bg-white/10 flex items-center justify-center font-bold">+</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function adjustFarmQty(type, id, delta) {
+  const current = miningFarm[type][id] || 0;
+  const next = Math.max(0, current + delta);
+  miningFarm[type][id] = next;
+  const el = document.getElementById(`qty-${type}-${id}`);
+  if (el) el.innerText = next;
+  saveFarmToStorage();
+  calculateProfit(type);
+}
+
+// ============================================================
+// TIPO DE CAMBIO (USD/EUR/COP) — reutiliza la API de CoinGecko
+// ============================================================
+const CURRENCY_SYMBOLS = { USD:'$', EUR:'€', COP:'$' };
+let fxRates = { USD: 1, EUR: null, COP: null }; // unidades de moneda por 1 USD
+const FX_CACHE_KEY = 'predisys.fxRates';
+const FX_CACHE_TTL_MS = 30 * 60 * 1000; // 30 min, el tipo de cambio no cambia tan rápido como el precio de la coin
+
+async function fetchFxRates() {
+  try {
+    const raw = localStorage.getItem(FX_CACHE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed.ts && Date.now() - parsed.ts < FX_CACHE_TTL_MS) {
+        fxRates = parsed.rates;
+        return;
+      }
+    }
+  } catch (e) {}
+
+  try {
+    // Usamos bitcoin como ancla para derivar EUR/USD y COP/USD sin necesitar una API de forex aparte
+    const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,eur,cop');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const btc = data.bitcoin;
+    if (btc?.usd && btc?.eur && btc?.cop) {
+      fxRates = { USD: 1, EUR: btc.eur / btc.usd, COP: btc.cop / btc.usd };
+      try { localStorage.setItem(FX_CACHE_KEY, JSON.stringify({ ts: Date.now(), rates: fxRates })); } catch(e) {}
+    }
+  } catch (err) {
+    console.warn('No se pudo obtener el tipo de cambio, se usa USD por defecto:', err);
+  }
+}
+fetchFxRates();
+
+function calculateProfit(type) {
+  const powerCost = parseFloat(document.getElementById(type === 'gpu' ? 'gpu-power-cost' : 'cpu-power-cost')?.value) || 0;
+  const currency = document.getElementById(`${type}-currency`)?.value || 'USD';
+  const fx = fxRates[currency] || 1;
+  const sym = CURRENCY_SYMBOLS[currency] || '$';
+  const devices = hardwareDB.filter(d => d.type === type);
+
+  let totalWatts = 0, dailyRevenueUsd = 0, investmentUsd = 0, totalUnits = 0;
+  devices.forEach(d => {
+    const qty = miningFarm[type][d.id] || 0;
+    totalWatts += d.watts * qty;
+    dailyRevenueUsd += computeDailyIncome(d) * qty;
+    investmentUsd += (d.priceUsd || 0) * qty;
+    totalUnits += qty;
+  });
+
+  // El costo eléctrico se ingresa ya en la moneda seleccionada; el ingreso (en USD) se convierte a esa moneda
+  const dailyRevenue = dailyRevenueUsd * fx;
+  const dailyCost = (totalWatts / 1000) * 24 * powerCost;
+  const dailyNet = dailyRevenue - dailyCost;
+  const investment = investmentUsd * fx;
+
+  const fmt = (v) => `${sym}${v.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = fmt(val); };
+  set(`${type}-rev-day`, dailyRevenue);  set(`${type}-rev-week`, dailyRevenue * 7);  set(`${type}-rev-month`, dailyRevenue * 30);
+  set(`${type}-cost-day`, dailyCost);    set(`${type}-cost-week`, dailyCost * 7);    set(`${type}-cost-month`, dailyCost * 30);
+  set(`${type}-net-day`, dailyNet);      set(`${type}-net-week`, dailyNet * 7);      set(`${type}-net-month`, dailyNet * 30);
+  set(`${type}-investment`, investment);
+
+  const wattsEl = document.getElementById(`${type}-total-watts`);
+  if (wattsEl) wattsEl.innerText = `${totalWatts.toLocaleString('es-ES')} W`;
+
+  document.getElementById(`${type}-net-day`)?.classList.toggle('text-brand-coral', dailyNet < 0);
+  document.getElementById(`${type}-net-week`)?.classList.toggle('text-brand-coral', dailyNet < 0);
+  document.getElementById(`${type}-net-month`)?.classList.toggle('text-brand-coral', dailyNet < 0);
+
+  // Payback period: días para recuperar la inversión en hardware con el beneficio neto diario
+  const paybackEl = document.getElementById(`${type}-payback`);
+  if (paybackEl) {
+    if (totalUnits === 0) {
+      paybackEl.innerText = '—';
+      paybackEl.classList.remove('text-brand-coral'); paybackEl.classList.add('text-slate-500');
+    } else if (dailyNet <= 0) {
+      paybackEl.innerText = 'Nunca (costo > ingreso)';
+      paybackEl.classList.add('text-brand-coral'); paybackEl.classList.remove('text-brand-emerald','text-slate-500');
+    } else {
+      const days = investment / dailyNet;
+      paybackEl.innerText = days < 365 ? `${Math.ceil(days)} días` : `${(days/365).toFixed(1)} años`;
+      paybackEl.classList.remove('text-brand-coral','text-slate-500'); paybackEl.classList.add('text-brand-emerald');
+    }
+  }
+}
+
+// ============================================================
+// SIMULATION ENGINE
+// ============================================================
+function startSimulation() {
+  renderSidebar(); renderDashboard();
+  tickInterval = setInterval(tick, settings.tickMs);
+  setInterval(updateClock, 1000);
+  updateClock();
+}
+function stopSimulation() { clearInterval(tickInterval); }
+
+function restartTickInterval() {
+  clearInterval(tickInterval);
+  tickInterval = setInterval(tick, settings.tickMs);
+}
+
+function updateClock() {
+  const now = new Date();
+  const clockEl = document.getElementById('header-clock');
+  if (clockEl) clockEl.innerText = now.toLocaleTimeString('es-ES');
+  const retrainEl = document.getElementById('header-retrain');
+  if (retrainEl) retrainEl.innerText = isoTicksToRebuild + ' ciclos';
+}
+
+function tick() {
+  isoRebuildCounter++;
+  isoTicksToRebuild = Math.max(0, ISO_REBUILD_EVERY - isoRebuildCounter);
+  if (isoRebuildCounter >= ISO_REBUILD_EVERY || !isoForest) {
+    buildIsoForest();
+    isoRebuildCounter = 0;
+    isoTicksToRebuild = ISO_REBUILD_EVERY;
+  }
+
+  rigs.forEach(rig => {
+    let tMult = rig.fault === 'thermal' ? 22 * rig.faultIntensity : 0;
+    let hMult = rig.fault === 'hash' ? -35 * rig.faultIntensity : 0;
+    let pMult = rig.fault === 'power' ? 700 * rig.faultIntensity : (rig.fault === 'thermal' ? 120 * rig.faultIntensity : 0);
+    let gMult = rig.fault ? -14 * rig.faultIntensity : 0;
+
+    const t = rig.baseTemp + tMult + (Math.random()*3 - 1.5);
+    const h = rig.baseHash + hMult + (Math.random()*3 - 1.5);
+    const p = rig.basePower + pMult + (Math.random()*40 - 20);
+    const g = Math.max(5, rig.baseGpu + gMult + (Math.random()*3 - 1.5));
+
+    rig.history.temp.push(t); rig.history.temp.shift();
+    rig.history.hash.push(h); rig.history.hash.shift();
+    rig.history.power.push(p); rig.history.power.shift();
+    rig.history.gpu.push(g); rig.history.gpu.shift();
+
+    const detailed = isoScoreDetailed([t, h, p, g]);
+    const score100 = scaleScore(detailed.raw);
+    rig.history.score.push(score100); rig.history.score.shift();
+
+    rig.prevStatus = rig.status;
+    rig.score = score100;
+    rig.confidence = detailed.confidence;
+    rig.ttf = estimateTTF(score100);
+    rig.status = rig.score > settings.riskThreshold ? 'risk' : (rig.score > settings.warnThreshold ? 'warn' : 'ok');
+
+    if (rig.prevStatus !== 'risk' && rig.status === 'risk') {
+      addNotification(`${rig.name} entró en RIESGO CRÍTICO (${Math.round(rig.score)}%)`, 'risk');
+      logActivity(`${rig.name} cruzó a riesgo crítico (score ${Math.round(rig.score)}%)`, 'risk');
+    } else if (rig.prevStatus === 'ok' && rig.status === 'warn') {
+      addNotification(`${rig.name} muestra desviación (${Math.round(rig.score)}%)`, 'warn');
+    }
+  });
+
+  renderSidebar();
+  if (currentView === 'dashboard') renderDashboard();
+  else if (currentView === 'rig') renderRig();
+  else if (currentView === 'analytics') renderAnalytics();
+}
+
+// ============================================================
+// FAULT INJECTION
+// ============================================================
+function setIntensity(level) {
+  currentIntensity = level;
+  ['mild','moderate','severe'].forEach(l => {
+    const btn = document.getElementById('int-'+l);
+    if (!btn) return;
+    btn.className = 'px-2.5 py-1 rounded-md ' + (l===level ? 'bg-brand-cyan/20 text-brand-cyan font-bold' : 'text-slate-400');
+  });
+}
+
+const INTENSITY_FACTORS = { mild: 0.5, moderate: 1, severe: 1.8 };
+
+function injectFault(type) {
+  const rig = rigs.find(r => r.id === selectedRigId);
+  if (!rig) return;
+  rig.fault = type;
+  rig.faultIntensity = INTENSITY_FACTORS[currentIntensity] || 1;
+  const labels = { thermal:'Pico Térmico', hash:'Caída de Hash', power:'Sobrecarga' };
+  logActivity(`Falla inyectada en ${rig.name}: ${labels[type]} (${currentIntensity})`, 'warn');
+  tick();
+}
+function clearFault() {
+  const rig = rigs.find(r => r.id === selectedRigId);
+  if (!rig) return;
+  rig.fault = null; rig.faultIntensity = 1;
+  logActivity(`Estado restaurado en ${rig.name}`, 'info');
+  tick();
+}
+
+// ============================================================
+// SIDEBAR
+// ============================================================
+function toggleSidebarSort() { sidebarSortByScore = !sidebarSortByScore; renderSidebar(); }
+
+function renderSidebar() {
+  const q = (document.getElementById('sidebar-search')?.value || '').toLowerCase();
+  let list = rigs.filter(r => r.name.toLowerCase().includes(q));
+  if (sidebarSortByScore) list = list.slice().sort((a,b) => b.score - a.score);
+
+  els.sidebarRigs.innerHTML = list.map(rig => {
+    const isActive = rig.id === selectedRigId && currentView === 'rig';
+    const sColor = rig.status === 'risk' ? 'bg-brand-coral shadow-[0_0_8px_#FB7185]' :
+                   (rig.status === 'warn' ? 'bg-brand-amber' : 'bg-brand-emerald');
+    const bgActive = isActive ? 'bg-white/10 border-white/20' : 'bg-transparent border-transparent hover:bg-white/5';
+    const spark = buildSparkline(rig.history.score);
+    return `
+      <div onclick="showRig(${rig.id})" class="cursor-pointer px-3 py-2.5 rounded-xl border ${bgActive} transition-all flex items-center justify-between group">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="w-2 h-2 rounded-full ${sColor} shrink-0"></span>
+          <div class="min-w-0">
+            <div class="text-sm font-bold text-white truncate">${rig.name}</div>
+            <div class="text-[9px] text-slate-500 font-mono mt-0.5">${rig.history.temp[HISTORY_LENGTH-1].toFixed(1)}°C · ${rig.history.hash[HISTORY_LENGTH-1].toFixed(0)}TH</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <svg width="36" height="14" viewBox="0 0 36 14">${spark}</svg>
+          <span class="text-xs font-bold font-mono ${rig.status==='risk'?'text-brand-coral':(rig.status==='warn'?'text-brand-amber':'text-slate-400')}">${Math.round(rig.score)}%</span>
+        </div>
+      </div>`;
+  }).join('') || `<div class="text-xs text-slate-500 text-center py-6">Sin resultados</div>`;
+}
+
+function buildSparkline(data) {
+  const slice = data.slice(-20);
+  const min = Math.min(...slice), max = Math.max(...slice) || 1;
+  const range = (max - min) || 1;
+  const pts = slice.map((v,i) => {
+    const x = (i/(slice.length-1)) * 36;
+    const y = 12 - ((v-min)/range) * 11;
+    return `${x},${y}`;
+  }).join(' ');
+  const color = slice[slice.length-1] > settings.riskThreshold ? '#FB7185' : (slice[slice.length-1] > settings.warnThreshold ? '#FBBF24' : '#34D399');
+  return `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+}
+
+// ============================================================
+// DASHBOARD RENDER
+// ============================================================
+function renderDashboard() {
+  let totalH = 0, totalP = 0, riskCount = 0, warnCount = 0, okCount = 0;
+  rigs.forEach(r => {
+    totalH += r.history.hash[HISTORY_LENGTH-1];
+    totalP += r.history.power[HISTORY_LENGTH-1];
+    if (r.status === 'risk') riskCount++; else if (r.status === 'warn') warnCount++; else okCount++;
+  });
+
+  const kpis = [
+    { l:'Salud de Flota', v:`${Math.round((okCount/NUM_RIGS)*100)}%`, sub:'Índice de operabilidad', c:'text-brand-emerald' },
+    { l:'Poder de Cómputo', v:`${(totalH/1000).toFixed(2)} PH/s`, sub:'Hashrate total agregado', c:'text-brand-cyan' },
+    { l:'Consumo Energético', v:`${(totalP/1000).toFixed(1)} kW`, sub:'Demanda eléctrica total', c:'text-brand-purple' },
+    { l:'Riesgos Críticos', v:riskCount, sub:`Score > ${settings.riskThreshold}%`, c: riskCount>0 ? 'text-brand-coral drop-shadow-[0_0_5px_#FB7185]' : 'text-slate-400' }
+  ];
+  document.getElementById('dash-kpis').innerHTML = kpis.map(k => `
+    <div class="glass p-5">
+      <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">${k.l}</div>
+      <div class="text-3xl font-bold font-mono mt-2 ${k.c}">${k.v}</div>
+      <div class="text-[10px] text-slate-500 mt-1">${k.sub}</div>
+    </div>`).join('');
+
+  els.dashGrid.innerHTML = rigs.map(rig => {
+    const t = rig.history.temp[HISTORY_LENGTH-1];
+    const sCls = rig.status === 'risk' ? 'border-brand-coral/50 bg-brand-coral/10' : (rig.status === 'warn' ? 'border-brand-amber/30 bg-brand-amber/5' : 'border-white/5 bg-dark-900/40');
+    const tCls = rig.status === 'risk' ? 'text-brand-coral' : (rig.status === 'warn' ? 'text-brand-amber' : 'text-brand-emerald');
+    return `
+      <div onclick="showRig(${rig.id})" class="rounded-xl border p-3 cursor-pointer transition-all hover:-translate-y-1 ${sCls} relative overflow-hidden">
+        ${rig.status==='risk' ? '<div class="absolute inset-0 bg-brand-coral/10 animate-pulse"></div>' : ''}
+        <div class="relative z-10">
+          <div class="text-sm font-bold text-white mb-2">${rig.name}</div>
+          <div class="text-[10px] flex justify-between"><span class="text-slate-400">Score:</span><span class="font-mono font-bold ${tCls}">${Math.round(rig.score)}%</span></div>
+          <div class="text-[10px] flex justify-between"><span class="text-slate-400">Temp:</span><span class="font-mono text-white">${t.toFixed(1)}°C</span></div>
+        </div>
+      </div>`;
+  }).join('');
+
+  drawDonut(okCount, warnCount, riskCount);
+  renderHistogram();
+  renderRankingInto('dash-ranking');
+}
+
+function drawDonut(ok, warn, risk) {
+  const total = ok + warn + risk;
+  const segments = document.getElementById('donut-segments');
+  if (!segments) return;
+  segments.innerHTML = '';
+  const radius = 40, circumference = 2*Math.PI*radius;
+  let currentOffset = 0;
+  const drawSegment = (value, color) => {
+    if (value === 0) return;
+    const dash = (value/total) * circumference;
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    path.setAttribute('cx','50'); path.setAttribute('cy','50'); path.setAttribute('r',radius);
+    path.setAttribute('fill','none'); path.setAttribute('stroke', color); path.setAttribute('stroke-width','12');
+    path.setAttribute('stroke-dasharray', `${dash-2} ${circumference-dash+2}`);
+    path.setAttribute('stroke-dashoffset', -currentOffset);
+    path.style.transition = 'all 0.5s ease';
+    segments.appendChild(path);
+    currentOffset += dash;
+  };
+  drawSegment(ok, '#34D399'); drawSegment(warn, '#FBBF24'); drawSegment(risk, '#FB7185');
+  document.getElementById('donut-total').innerText = total;
+  document.getElementById('donut-legend').innerHTML = `
+    <div class="flex justify-between items-center text-xs"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-brand-emerald"></span>Normal</span><span class="font-mono text-white">${ok}</span></div>
+    <div class="flex justify-between items-center text-xs"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-brand-amber"></span>Advertencia</span><span class="font-mono text-white">${warn}</span></div>
+    <div class="flex justify-between items-center text-xs"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-brand-coral shadow-[0_0_5px_#FB7185]"></span>Riesgo</span><span class="font-mono text-white">${risk}</span></div>`;
+}
+
+function renderHistogram() {
+  const bins = [ {l:'0-20', c:0}, {l:'20-40', c:0}, {l:'40-60', c:0}, {l:'60-80', c:0}, {l:'80-100', c:0} ];
+  rigs.forEach(r => { const idx = Math.min(4, Math.floor(r.score/20)); bins[idx].c++; });
+  const maxC = Math.max(1, ...bins.map(b=>b.c));
+  const colors = ['#34D399','#34D399','#FBBF24','#FB7185','#FB7185'];
+  document.getElementById('dash-histogram').innerHTML = bins.map((b,i) => `
+    <div class="flex-1 flex flex-col items-center justify-end h-full gap-1.5">
+      <span class="text-[10px] font-mono text-slate-300">${b.c}</span>
+      <div class="w-full rounded-t-md transition-all duration-500" style="height:${(b.c/maxC)*85 || 2}%; background:${colors[i]}; opacity:0.75;"></div>
+      <span class="text-[9px] text-slate-500 font-mono">${b.l}</span>
+    </div>`).join('');
+}
+
+function renderRankingInto(containerId) {
+  const sorted = rigs.slice().sort((a,b) => b.score - a.score);
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = sorted.map(r => {
+    const color = r.status === 'risk' ? '#FB7185' : (r.status === 'warn' ? '#FBBF24' : '#34D399');
+    return `
+    <div onclick="showRig(${r.id})" class="cursor-pointer group">
+      <div class="flex justify-between text-[11px] mb-1">
+        <span class="text-slate-300 font-semibold group-hover:text-white">${r.name}</span>
+        <span class="font-mono" style="color:${color}">${Math.round(r.score)}%</span>
+      </div>
+      <div class="w-full h-1.5 bg-dark-900/70 rounded-full overflow-hidden">
+        <div class="h-full rounded-full transition-all duration-500" style="width:${r.score}%; background:${color};"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// RIG DETAIL RENDER
+// ============================================================
+function renderRig() {
+  const rig = rigs.find(r => r.id === selectedRigId);
+  if (!rig) return;
+
+  const t = rig.history.temp[HISTORY_LENGTH-1];
+  const h = rig.history.hash[HISTORY_LENGTH-1];
+  const p = rig.history.power[HISTORY_LENGTH-1];
+  const g = rig.history.gpu[HISTORY_LENGTH-1];
+  const confidence = rig.confidence || 60;
+  const ttf = rig.ttf || estimateTTF(rig.score);
+
+  document.getElementById('stat-temp').innerText = t.toFixed(1) + '°';
+  document.getElementById('stat-temp').className = `text-xl font-mono font-bold mt-1 ${t>80?'text-brand-coral drop-shadow-[0_0_5px_#FB7185]':'text-white'}`;
+  document.getElementById('stat-hash').innerText = h.toFixed(0);
+  document.getElementById('stat-power').innerText = Math.round(p);
+  document.getElementById('stat-gpu').innerText = g.toFixed(1) + '%';
+
+  document.getElementById('band-label-warn').innerText = settings.warnThreshold;
+  document.getElementById('band-label-risk').innerText = settings.riskThreshold;
+
+  drawGauge(rig.score, rig.status);
+  updateMlInfo(ttf, confidence);
+
+  const normT = Math.min(100, Math.max(0, (t-40)/(95-40)*100));
+  const normH = Math.min(100, Math.max(0, h/120*100));
+  const normG = Math.min(100, Math.max(0, g));
+  const normC = confidence;
+  const normP = Math.min(100, Math.max(0, (p-2000)/(4000-2000)*100));
+  drawRadar([normT, normH, normG, normC, normP]);
+
+  drawBandChart('score', rig.history.score, 0, 100, [
+    { from:0, to:settings.warnThreshold, color:'#34D399' },
+    { from:settings.warnThreshold, to:settings.riskThreshold, color:'#FBBF24' },
+    { from:settings.riskThreshold, to:100, color:'#FB7185' }
+  ]);
+  drawBandChart('temp', rig.history.temp, 40, 110, [
+    { from:40, to:75, color:'#34D399' }, { from:75, to:88, color:'#FBBF24' }, { from:88, to:110, color:'#FB7185' }
+  ]);
+  drawBandChart('hash', rig.history.hash, 40, 130, [
+    { from:40, to:65, color:'#FB7185' }, { from:65, to:88, color:'#FBBF24' }, { from:88, to:130, color:'#34D399' }
+  ]);
+  drawBandChart('power', rig.history.power, 2000, 4500, [
+    { from:2000, to:3400, color:'#34D399' }, { from:3400, to:4100, color:'#FBBF24' }, { from:4100, to:4500, color:'#FB7185' }
+  ]);
+  drawBandChart('gpu', rig.history.gpu, 20, 100, [
+    { from:20, to:55, color:'#FB7185' }, { from:55, to:80, color:'#FBBF24' }, { from:80, to:100, color:'#34D399' }
+  ]);
+}
+
+function updateMlInfo(ttf, confidence) {
+  const ttfEl = document.getElementById('ml-ttf');
+  const confEl = document.getElementById('ml-confidence');
+  if (ttfEl) { ttfEl.innerText = ttf.label; ttfEl.className = `text-lg font-mono font-bold ${ttf.hours<=24?'text-brand-coral':(ttf.hours<=60?'text-brand-amber':'text-brand-emerald')}`; }
+  if (confEl) confEl.innerText = confidence + '%';
+}
+
+function drawGauge(score, status) {
+  const arc = document.getElementById('gauge-arc');
+  const val = document.getElementById('gauge-val');
+  const desc = document.getElementById('gauge-desc');
+  const bg = document.getElementById('gauge-bg');
+  if (!arc) return;
+  val.innerText = Math.round(score) + '%';
+  arc.style.strokeDashoffset = 125.6 - (score/100)*125.6;
+
+  let color = '#34D399', text = 'Comportamiento normal. Operación estable.', bgGlow = 'from-transparent to-brand-emerald/5';
+  if (status === 'risk') { color='#FB7185'; text='¡RIESGO INMINENTE! Patrón de anomalía detectado por el modelo.'; bgGlow='from-transparent to-brand-coral/20'; }
+  else if (status === 'warn') { color='#FBBF24'; text='Desviación detectada. Se sugiere monitoreo cercano.'; bgGlow='from-transparent to-brand-amber/10'; }
+
+  arc.setAttribute('stroke', color);
+  val.style.color = color; val.style.textShadow = `0 0 10px ${color}80`;
+  desc.innerText = text;
+  bg.className = `absolute inset-0 bg-gradient-to-b ${bgGlow} pointer-events-none transition-colors duration-500`;
+}
+
+function drawRadar(dataArr) {
+  const poly = document.getElementById('radar-data');
+  if (!poly) return;
+  let points = '';
+  const cx=50, cy=50, maxR=40;
+  dataArr.forEach((val,i) => {
+    const angle = (Math.PI*2*i/5) - (Math.PI/2);
+    const r = (val/100)*maxR;
+    points += `${cx + r*Math.cos(angle)},${cy + r*Math.sin(angle)} `;
+  });
+  poly.setAttribute('points', points.trim());
+  if (dataArr[0] > 80 || dataArr[4] > 80) { poly.setAttribute('fill','rgba(251,113,133,0.3)'); poly.setAttribute('stroke','#FB7185'); }
+  else { poly.setAttribute('fill','rgba(34,211,238,0.3)'); poly.setAttribute('stroke','#22D3EE'); }
+}
+
+function drawBandChart(prefix, data, min, max, bands) {
+  const bandsG = document.getElementById(prefix+'-bands');
+  const path = document.getElementById(prefix+'-path');
+  if (!bandsG || !path) return;
+  const yFor = (val) => { const c = Math.max(min, Math.min(max, val)); return 100 - ((c-min)/(max-min))*100; };
+  bandsG.innerHTML = bands.map(b => {
+    const y1 = yFor(Math.min(b.to,max)), y2 = yFor(Math.max(b.from,min));
+    const top = Math.min(y1,y2), height = Math.abs(y2-y1);
+    return `<rect x="0" y="${top}" width="100" height="${height}" fill="${b.color}" opacity="0.14"/>`;
+  }).join('');
+  const d = data.reduce((acc,val,i) => {
+    const x = (i/(data.length-1))*100, y = yFor(val);
+    return acc + (i===0 ? `M${x},${y}` : ` L${x},${y}`);
+  }, '');
+  path.setAttribute('d', d);
+}
+
+// ============================================================
+// ANALYTICS RENDER
+// ============================================================
+function renderAnalytics() {
+  document.getElementById('an-rebuild-every').innerText = ISO_REBUILD_EVERY;
+  document.getElementById('an-trees').innerText = ISO_TREES;
+  document.getElementById('an-sample').innerText = isoForest ? isoForest.psi : ISO_SAMPLE;
+
+  const scatter = document.getElementById('scatter-points');
+  scatter.innerHTML = rigs.map(r => {
+    const t = r.history.temp[HISTORY_LENGTH-1], p = r.history.power[HISTORY_LENGTH-1];
+    const x = Math.min(100, Math.max(0, (t-40)/(100-40)*100));
+    const y = Math.min(100, Math.max(0, 100 - (p-2500)/(4200-2500)*100));
+    const color = r.status === 'risk' ? '#FB7185' : (r.status === 'warn' ? '#FBBF24' : '#34D399');
+    const radius = 2.2 + (r.score/100)*2.4;
+    return `<g>
+      <circle cx="${x}" cy="${y}" r="${radius}" fill="${color}" fill-opacity="0.35" stroke="${color}" stroke-width="0.8"/>
+      <text x="${x}" y="${y-radius-1.5}" font-size="2.6" fill="#94A3B8" text-anchor="middle">${r.name.replace('Rig-','R')}</text>
+    </g>`;
+  }).join('');
+
+  renderRankingInto('analytics-ranking');
+
+  const top = rigs.slice().sort((a,b) => b.score - a.score)[0];
+  const t = top.history.temp[HISTORY_LENGTH-1], h = top.history.hash[HISTORY_LENGTH-1], p = top.history.power[HISTORY_LENGTH-1];
+  const tDev = Math.max(0, t-72), hDev = Math.max(0, 85-h), pDev = Math.max(0, p-3200);
+  const totalDev = (tDev*2.5) + (hDev*2) + (pDev*0.08) || 1;
+  const pct = (v) => Math.round((v/totalDev)*100);
+  document.getElementById('analytics-top-detail').innerHTML = `
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <div class="text-white font-bold">${top.name}</div>
+        <div class="text-[11px] text-slate-500">${top.model} · Score ${Math.round(top.score)}%</div>
+      </div>
+      <span class="text-[10px] px-2 py-0.5 rounded-full font-bold border uppercase ${top.status==='risk'?'bg-brand-coral/20 text-brand-coral border-brand-coral/30':(top.status==='warn'?'bg-brand-amber/20 text-brand-amber border-brand-amber/30':'bg-brand-emerald/20 text-brand-emerald border-brand-emerald/30')}">${top.status==='ok'?'normal':top.status}</span>
+    </div>
+    <div class="space-y-3">
+      <div>
+        <div class="flex justify-between text-[11px] mb-1"><span class="text-brand-coral">Contribución de Temperatura</span><span class="font-mono">${pct(tDev*2.5)}%</span></div>
+        <div class="w-full h-1.5 bg-dark-900/70 rounded-full"><div class="h-full bg-brand-coral rounded-full" style="width:${pct(tDev*2.5)}%"></div></div>
+      </div>
+      <div>
+        <div class="flex justify-between text-[11px] mb-1"><span class="text-brand-cyan">Contribución de Hashrate</span><span class="font-mono">${pct(hDev*2)}%</span></div>
+        <div class="w-full h-1.5 bg-dark-900/70 rounded-full"><div class="h-full bg-brand-cyan rounded-full" style="width:${pct(hDev*2)}%"></div></div>
+      </div>
+      <div>
+        <div class="flex justify-between text-[11px] mb-1"><span class="text-brand-purple">Contribución de Potencia</span><span class="font-mono">${pct(pDev*0.08)}%</span></div>
+        <div class="w-full h-1.5 bg-dark-900/70 rounded-full"><div class="h-full bg-brand-purple rounded-full" style="width:${pct(pDev*0.08)}%"></div></div>
+      </div>
+    </div>
+    <p class="text-[11px] text-slate-500 mt-4">Estimación referencial de qué variable se aleja más de la operación típica de la flota; el score final lo determina el bosque de aislamiento sobre las 3 variables combinadas.</p>`;
+}
+
+// ============================================================
+// PROFILE RENDER
+// ============================================================
+function renderProfile() {
+  document.getElementById('pref-warn').value = settings.warnThreshold;
+  document.getElementById('pref-risk').value = settings.riskThreshold;
+  document.getElementById('pref-speed').value = settings.tickMs;
+  document.getElementById('pref-warn-val').innerText = settings.warnThreshold + '%';
+  document.getElementById('pref-risk-val').innerText = settings.riskThreshold + '%';
+  document.getElementById('pref-speed-val').innerText = (settings.tickMs/1000).toFixed(2) + 's';
+  document.getElementById('pref-toast-toggle').classList.toggle('on', settings.toastEnabled);
+  document.getElementById('profile-session-time').innerText = sessionStart ? sessionStart.toLocaleString('es-ES') : '--';
+  renderActivityLog();
+}
+
+function updateThresholdPreview() {
+  const w = parseInt(document.getElementById('pref-warn').value);
+  let r = parseInt(document.getElementById('pref-risk').value);
+  if (r <= w) { r = w + 5; document.getElementById('pref-risk').value = r; }
+  document.getElementById('pref-warn-val').innerText = w + '%';
+  document.getElementById('pref-risk-val').innerText = r + '%';
+}
+
+function savePreferences() {
+  settings.warnThreshold = parseInt(document.getElementById('pref-warn').value);
+  settings.riskThreshold = parseInt(document.getElementById('pref-risk').value);
+  settings.tickMs = parseInt(document.getElementById('pref-speed').value);
+  settings.toastEnabled = document.getElementById('pref-toast-toggle').classList.contains('on');
+  restartTickInterval();
+  saveThresholdsToStorage();
+  logActivity(`Preferencias actualizadas · Advertencia ${settings.warnThreshold}% · Riesgo ${settings.riskThreshold}% · Ciclo ${(settings.tickMs/1000).toFixed(2)}s`, 'info');
+  addNotification('Preferencias guardadas y umbrales persistidos en este navegador', 'info');
+  rigs.forEach(r => { r.status = r.score > settings.riskThreshold ? 'risk' : (r.score > settings.warnThreshold ? 'warn' : 'ok'); });
+  renderSidebar();
+}
+
+function logActivity(text, type) {
+  activityLog.unshift({ time: new Date(), text, type });
+  if (activityLog.length > 25) activityLog.pop();
+  if (currentView === 'profile') renderActivityLog();
+}
+
+function renderActivityLog() {
+  const el = document.getElementById('activity-log');
+  if (!el) return;
+  if (!activityLog.length) { el.innerHTML = '<div class="text-xs text-slate-500">Sin actividad todavía.</div>'; return; }
+  const dot = { info:'bg-brand-cyan', warn:'bg-brand-amber', risk:'bg-brand-coral' };
+  el.innerHTML = activityLog.map(a => `
+    <div class="flex items-start gap-2.5 text-xs bg-dark-900/40 rounded-lg px-3 py-2 border border-white/5">
+      <span class="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${dot[a.type]||'bg-slate-500'}"></span>
+      <div class="min-w-0">
+        <div class="text-slate-300">${a.text}</div>
+        <div class="text-[10px] text-slate-600 font-mono mt-0.5">${a.time.toLocaleTimeString('es-ES')}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ============================================================
+// NOTIFICATIONS (bell panel, no pop-ups)
+// ============================================================
+function addNotification(text, type) {
+  if (!settings.toastEnabled) return;
+  notifications.unshift({ time: new Date(), text, type });
+  if (notifications.length > 40) notifications.pop();
+  unreadNotifCount++;
+  updateNotifBadge();
+  const panel = document.getElementById('notif-panel');
+  if (panel && !panel.classList.contains('hidden')) renderNotifList();
+}
+
+function updateNotifBadge() {
+  const badge = document.getElementById('notif-badge');
+  if (!badge) return;
+  if (unreadNotifCount > 0) {
+    badge.classList.remove('hidden');
+    badge.innerText = unreadNotifCount > 9 ? '9+' : unreadNotifCount;
+  } else {
+    badge.classList.add('hidden');
+  }
+}
+
+function toggleNotifPanel(evt) {
+  if (evt) evt.stopPropagation();
+  const panel = document.getElementById('notif-panel');
+  if (!panel) return;
+  const willOpen = panel.classList.contains('hidden');
+  panel.classList.toggle('hidden');
+  if (willOpen) {
+    unreadNotifCount = 0;
+    updateNotifBadge();
+    renderNotifList();
+  }
+}
+
+function clearNotifications() {
+  notifications = [];
+  renderNotifList();
+}
+
+function renderNotifList() {
+  const list = document.getElementById('notif-list');
+  if (!list) return;
+  if (!notifications.length) {
+    list.innerHTML = '<div class="text-xs text-slate-500 text-center py-8">Sin notificaciones nuevas.</div>';
+    return;
+  }
+  const colors = { risk:'text-brand-coral', warn:'text-brand-amber', info:'text-brand-cyan' };
+  const icon = { risk:'⚠', warn:'△', info:'ℹ' };
+  list.innerHTML = notifications.map(n => `
+    <div class="flex items-start gap-2.5 text-xs px-2.5 py-2 rounded-lg hover:bg-white/5">
+      <span class="text-sm ${colors[n.type]||colors.info}">${icon[n.type]||icon.info}</span>
+      <div class="min-w-0">
+        <div class="text-slate-300">${n.text}</div>
+        <div class="text-[10px] text-slate-600 font-mono mt-0.5">${n.time.toLocaleTimeString('es-ES')}</div>
+      </div>
+    </div>`).join('');
+}
+
+document.addEventListener('click', (e) => {
+  const wrapper = document.getElementById('notif-wrapper');
+  const panel = document.getElementById('notif-panel');
+  if (!wrapper || !panel || panel.classList.contains('hidden')) return;
+  if (!wrapper.contains(e.target)) panel.classList.add('hidden');
+});
+
+// ============================================================
+// HELP MODAL
+// ============================================================
+function openHelp() { els.modalHelp.classList.remove('hidden'); }
+function closeHelp() { els.modalHelp.classList.add('hidden'); }
+
+// ============================================================
+// EXPORT MENU (PDF / CSV)
+// ============================================================
+function toggleExportMenu(evt) {
+  if (evt) evt.stopPropagation();
+  const menu = document.getElementById('export-menu');
+  if (!menu) return;
+  menu.classList.toggle('hidden');
+}
+function closeExportMenu() {
+  const menu = document.getElementById('export-menu');
+  if (menu) menu.classList.add('hidden');
+}
+document.addEventListener('click', (e) => {
+  const wrapper = document.getElementById('export-wrapper');
+  const menu = document.getElementById('export-menu');
+  if (!wrapper || !menu || menu.classList.contains('hidden')) return;
+  if (!wrapper.contains(e.target)) menu.classList.add('hidden');
+});
+
+// ============================================================
+// CSV EXPORT
+// ============================================================
+function downloadCSV() {
+  closeExportMenu();
+  const headers = ['Rig','Modelo','Temperatura_C','Hashrate_THs','Potencia_W','Uso_GPU_pct','Score_Anomalia_pct','TTF_Estimado','Confianza_pct','Estado'];
+  const rows = rigs.map(r => {
+    const t = r.history.temp[HISTORY_LENGTH-1];
+    const h = r.history.hash[HISTORY_LENGTH-1];
+    const p = r.history.power[HISTORY_LENGTH-1];
+    const g = r.history.gpu[HISTORY_LENGTH-1];
+    return [
+      r.name, r.model, t.toFixed(1), h.toFixed(1), Math.round(p), g.toFixed(1),
+      Math.round(r.score), (r.ttf ? r.ttf.label : estimateTTF(r.score).label), (r.confidence || '--'),
+      r.status === 'ok' ? 'NORMAL' : r.status.toUpperCase()
+    ];
+  });
+  let csv = headers.join(',') + '\n';
+  rows.forEach(row => { csv += row.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',') + '\n'; });
+
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `PrediSys_Flota_${stamp}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  addNotification('Archivo CSV descargado', 'info');
+  logActivity('Exportación CSV de la flota generada', 'info');
+}
+
+// Exporta la serie de tiempo completa (60 lecturas) de un rig — útil para justificar mantenimiento
+function downloadRigTelemetryCSV(rigId) {
+  const rig = rigs.find(r => r.id === rigId);
+  if (!rig) return;
+  const headers = ['Lectura','Temperatura_C','Hashrate_THs','Potencia_W','Uso_GPU_pct'];
+  let csv = headers.join(',') + '\n';
+  for (let i = 0; i < HISTORY_LENGTH; i++) {
+    const row = [
+      i + 1,
+      rig.history.temp[i].toFixed(2),
+      rig.history.hash[i].toFixed(2),
+      Math.round(rig.history.power[i]),
+      rig.history.gpu[i].toFixed(2)
+    ];
+    csv += row.join(',') + '\n';
+  }
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `PrediSys_Telemetria_${rig.name}_${stamp}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  addNotification(`Telemetría de ${rig.name} exportada`, 'info');
+  logActivity(`Telemetría completa de ${rig.name} exportada a CSV`, 'info');
+}
+
+// ============================================================
+// COMPARTIR CONFIGURACIÓN DE GRANJA VÍA URL
+// ============================================================
+function shareFarmConfig() {
+  const params = new URLSearchParams();
+  ['gpu','cpu'].forEach(type => {
+    Object.entries(miningFarm[type]).forEach(([id, qty]) => {
+      if (qty > 0) params.append(type, `${id}:${qty}`);
+    });
+  });
+  const gpuCost = document.getElementById('gpu-power-cost')?.value;
+  const cpuCost = document.getElementById('cpu-power-cost')?.value;
+  if (gpuCost) params.set('gpuCost', gpuCost);
+  if (cpuCost) params.set('cpuCost', cpuCost);
+
+  const url = `${location.origin}${location.pathname}?${params.toString()}`;
+  navigator.clipboard?.writeText(url).then(() => {
+    addNotification('Link de configuración copiado al portapapeles', 'info');
+  }).catch(() => {
+    prompt('Copia este link para compartir tu configuración de granja:', url);
+  });
+  logActivity('Configuración de granja compartida vía URL', 'info');
+}
+
+// Al cargar, si la URL trae ?gpu=id:qty&cpu=id:qty... precarga la granja del link compartido
+function loadFarmFromUrlParams() {
+  const params = new URLSearchParams(location.search);
+  if (![...params.keys()].length) return;
+  let applied = false;
+  ['gpu','cpu'].forEach(type => {
+    params.getAll(type).forEach(entry => {
+      const [id, qtyStr] = entry.split(':');
+      const qty = parseInt(qtyStr, 10);
+      if (id && hardwareDB.find(d => d.id === id && d.type === type) && qty > 0) {
+        miningFarm[type][id] = qty;
+        applied = true;
+      }
+    });
+  });
+  const gpuCost = params.get('gpuCost');
+  const cpuCost = params.get('cpuCost');
+  if (gpuCost) { const el = document.getElementById('gpu-power-cost'); if (el) el.value = gpuCost; applied = true; }
+  if (cpuCost) { const el = document.getElementById('cpu-power-cost'); if (el) el.value = cpuCost; applied = true; }
+  if (applied) { saveFarmToStorage(); addNotification('Configuración de granja cargada desde el link compartido', 'info'); }
+}
+
+// ============================================================
+// PDF REPORT EXPORT — dibujado vectorial con jsPDF
+// ============================================================
+function hex2rgb(hex) {
+  const n = parseInt(hex.replace('#',''), 16);
+  return [(n>>16)&255, (n>>8)&255, n&255];
+}
+
+const PDF_COLORS = {
+  text: hex2rgb('#0F172A'),
+  gray: hex2rgb('#64748B'),
+  lightGray: hex2rgb('#94A3B8'),
+  border: hex2rgb('#E2E8F0'),
+  green: hex2rgb('#059669'),
+  amber: hex2rgb('#D97706'),
+  red: hex2rgb('#DC2626')
+};
+
+function statusLabelPDF(status) { return status === 'risk' ? 'Crítico' : (status === 'warn' ? 'Atención' : 'Estable'); }
+function statusColorPDF(status) { return status === 'risk' ? PDF_COLORS.red : (status === 'warn' ? PDF_COLORS.amber : PDF_COLORS.green); }
+
+function downloadPDF() {
+  closeExportMenu();
+  if (!window.jspdf) { addNotification('No se pudo cargar el generador de PDF', 'risk'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  const pageW = 595.28, pageH = 841.89, margin = 42;
+  const now = new Date();
+
+  let riskCount=0, warnCount=0, okCount=0, totalH=0, totalP=0;
+  rigs.forEach(r => {
+    if (r.status==='risk') riskCount++; else if (r.status==='warn') warnCount++; else okCount++;
+    totalH += r.history.hash[HISTORY_LENGTH-1];
+    totalP += r.history.power[HISTORY_LENGTH-1];
+  });
+  const health = Math.round((okCount/NUM_RIGS)*100);
+
+  // ---- Header (página 1) ----
+  doc.setFont('helvetica','bold'); doc.setFontSize(19);
+  doc.setTextColor(...PDF_COLORS.green);
+  doc.text('PrediSys', margin, 56);
+  doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+  doc.setTextColor(...PDF_COLORS.gray);
+  doc.text('CENTRO DE CONTROL PREDICTIVO', margin, 68);
+
+  doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+  doc.setTextColor(...PDF_COLORS.lightGray);
+  doc.text('INFORME OPERATIVO', pageW-margin, 48, { align:'right' });
+  doc.setFont('helvetica','bold'); doc.setFontSize(11);
+  doc.setTextColor(...PDF_COLORS.text);
+  const dateStr = now.toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'}).toUpperCase() + ' · ' + now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  doc.text(dateStr, pageW-margin, 62, { align:'right' });
+  doc.setFont('helvetica','normal'); doc.setFontSize(9);
+  doc.setTextColor(...PDF_COLORS.gray);
+  doc.text('Preparado para Operador Demo', pageW-margin, 75, { align:'right' });
+
+  doc.setDrawColor(...PDF_COLORS.border); doc.setLineWidth(1);
+  doc.line(margin, 90, pageW-margin, 90);
+
+  let y = 122;
+
+  // ---- Resumen del turno ----
+  doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
+  doc.setTextColor(...PDF_COLORS.green);
+  doc.text('RESUMEN DEL TURNO', margin, y);
+  y += 22;
+
+  const headline = riskCount>0 ? 'La flota requiere atención inmediata.' : (warnCount>0 ? 'La flota está bajo vigilancia.' : 'La flota está bajo control.');
+  doc.setFont('helvetica','bold'); doc.setFontSize(23);
+  doc.setTextColor(...PDF_COLORS.text);
+  doc.text(headline, margin, y);
+  y += 26;
+
+  const summaryText = (riskCount+warnCount > 0)
+    ? `${riskCount+warnCount} equipo(s) requieren intervención para mantener la continuidad operativa. La salud consolidada de la flota es de ${health}/100.`
+    : `Toda la flota opera dentro de parámetros normales. La salud consolidada de la flota es de ${health}/100.`;
+  doc.setFont('helvetica','normal'); doc.setFontSize(10);
+  doc.setTextColor(...PDF_COLORS.gray);
+  const summaryLines = doc.splitTextToSize(summaryText, pageW - margin*2 - 20);
+  doc.text(summaryLines, margin, y);
+  y += summaryLines.length*13 + 18;
+
+  // ---- KPI cards ----
+  const kpis = [
+    { label:'SALUD DE FLOTA', value:`${health}/100`, sub:'Índice de operabilidad', warn:false },
+    { label:'HASHRATE TOTAL', value:`${(totalH/1000).toFixed(2)} PH/s`, sub:'Agregado de la flota', warn:false },
+    { label:'ENERGÍA ACTIVA', value:`${(totalP/1000).toFixed(1)} kW`, sub:'Demanda eléctrica', warn:false },
+    { label:'RIESGO CRÍTICO', value:`${riskCount} equipo${riskCount===1?'':'s'}`, sub: riskCount>0 ? 'Requiere atención' : 'Sin incidencias', warn: riskCount>0 }
+  ];
+  const cardGap = 12;
+  const cardW = (pageW - margin*2 - cardGap*3) / 4;
+  const cardH = 74;
+  kpis.forEach((k, i) => {
+    const x = margin + i*(cardW+cardGap);
+    doc.setDrawColor(...PDF_COLORS.border); doc.setLineWidth(1);
+    doc.roundedRect(x, y, cardW, cardH, 6, 6, 'S');
+    doc.setFont('helvetica','bold'); doc.setFontSize(6.8);
+    doc.setTextColor(...PDF_COLORS.lightGray);
+    doc.text(k.label, x+12, y+18);
+    doc.setFont('helvetica','bold'); doc.setFontSize(15);
+    doc.setTextColor(...PDF_COLORS.text);
+    doc.text(k.value, x+12, y+40);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.3);
+    doc.setTextColor(...(k.warn ? PDF_COLORS.red : PDF_COLORS.green));
+    doc.text(k.sub, x+12, y+58);
+  });
+  y += cardH + 26;
+
+  // ---- Telemetría (gráfica de tendencia) ----
+  const targetRig = (currentView === 'rig' && selectedRigId) ? rigs.find(r=>r.id===selectedRigId) : rigs.slice().sort((a,b)=>b.score-a.score)[0];
+  const chartBoxH = 190;
+  doc.setDrawColor(...PDF_COLORS.border); doc.setLineWidth(1);
+  doc.roundedRect(margin, y, pageW-margin*2, chartBoxH, 6, 6, 'S');
+
+  let cy = y + 22;
+  doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+  doc.setTextColor(...PDF_COLORS.lightGray);
+  doc.text('TELEMETRÍA DEL EQUIPO', margin+16, cy);
+  cy += 15;
+  doc.setFont('helvetica','bold'); doc.setFontSize(12);
+  doc.setTextColor(...PDF_COLORS.text);
+  doc.text(`${targetRig.name} · Tendencia térmica (ventana reciente)`, margin+16, cy);
+  cy += 14;
+
+  doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.setTextColor(...PDF_COLORS.green);
+  doc.text('— Temperatura', margin+16, cy);
+  doc.setTextColor(...PDF_COLORS.amber);
+  doc.text('- - Umbral térmico: 88 °C', margin+120, cy);
+  cy += 16;
+
+  const chartX = margin+48, chartTop = cy, chartW = pageW-margin*2-78, chartH = 88;
+  const tempHistory = targetRig.history.temp.slice(-40);
+  const tMin = Math.min(...tempHistory, 55), tMax = Math.max(...tempHistory, 95);
+  const thresholdTemp = 88;
+  const tX = (i) => chartX + (i/(tempHistory.length-1))*chartW;
+  const tY = (v) => chartTop + chartH - ((v-tMin)/(tMax-tMin))*chartH;
+
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
+  doc.setTextColor(...PDF_COLORS.lightGray);
+  doc.text(Math.round(tMax)+'', chartX-8, chartTop+4, { align:'right' });
+  doc.text(Math.round(tMin)+'', chartX-8, chartTop+chartH+2, { align:'right' });
+
+  if (thresholdTemp >= tMin && thresholdTemp <= tMax) {
+    doc.setDrawColor(...PDF_COLORS.amber);
+    doc.setLineWidth(0.8);
+    doc.setLineDashPattern([2,2], 0);
+    doc.line(chartX, tY(thresholdTemp), chartX+chartW, tY(thresholdTemp));
+    doc.setLineDashPattern([], 0);
+  }
+
+  doc.setDrawColor(...PDF_COLORS.green);
+  doc.setLineWidth(1.4);
+  for (let i=1;i<tempHistory.length;i++) {
+    doc.line(tX(i-1), tY(tempHistory[i-1]), tX(i), tY(tempHistory[i]));
+  }
+  const lastV = tempHistory[tempHistory.length-1];
+  doc.setFillColor(...statusColorPDF(targetRig.status));
+  doc.circle(tX(tempHistory.length-1), tY(lastV), 2.6, 'F');
+
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
+  doc.setTextColor(...PDF_COLORS.lightGray);
+  doc.text('Inicio', chartX, chartTop+chartH+16);
+  doc.text('Ahora', chartX+chartW, chartTop+chartH+16, { align:'right' });
+
+  cy = chartTop + chartH + 32;
+  const avgTemp = tempHistory.reduce((a,b)=>a+b,0)/tempHistory.length;
+  const ttfInfo = targetRig.ttf ? targetRig.ttf : estimateTTF(targetRig.score);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9.3);
+  doc.setTextColor(...PDF_COLORS.gray);
+  doc.text(`Última lectura: ${lastV.toFixed(1)} °C  ·  Media reciente: ${avgTemp.toFixed(1)} °C  ·  Tiempo estimado a falla: ${ttfInfo.label}`, margin+16, cy);
+
+  y = y + chartBoxH + 26;
+
+  // ---- Tabla de equipos priorizados ----
+  const sortedRigs = rigs.slice().sort((a,b) => b.score-a.score);
+  const colX = { name: margin+16, status: margin+192, temp: margin+272, hash: margin+368, risk: pageW-margin-16 };
+  const bottomLimit = pageH - 70;
+
+  doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+  doc.setTextColor(...PDF_COLORS.lightGray);
+  doc.text('EQUIPOS PRIORITARIOS', margin, y);
+  y += 14;
+  doc.setFont('helvetica','bold'); doc.setFontSize(12);
+  doc.setTextColor(...PDF_COLORS.text);
+  doc.text('Estado actual de la flota', margin, y);
+  y += 20;
+
+  function drawTableHeaderRow(rowY) {
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+    doc.setTextColor(...PDF_COLORS.lightGray);
+    doc.text('EQUIPO', colX.name, rowY);
+    doc.text('ESTADO', colX.status, rowY);
+    doc.text('TEMPERATURA', colX.temp, rowY);
+    doc.text('HASHRATE', colX.hash, rowY);
+    doc.text('RIESGO', colX.risk, rowY, { align:'right' });
+  }
+
+  let boxStartY = y;
+  drawTableHeaderRow(y);
+  y += 10;
+  doc.setDrawColor(...PDF_COLORS.border); doc.line(margin+16, y, pageW-margin-16, y);
+  y += 22;
+
+  function closeBox(endY) {
+    doc.setDrawColor(...PDF_COLORS.border); doc.setLineWidth(1);
+    doc.roundedRect(margin, boxStartY-24, pageW-margin*2, (endY - (boxStartY-24)), 6, 6, 'S');
+  }
+
+  sortedRigs.forEach((r, idx) => {
+    const rowH = 32;
+    if (y + rowH > bottomLimit) {
+      closeBox(y+6);
+      doc.addPage();
+      y = 56;
+      doc.setFont('helvetica','normal'); doc.setFontSize(8);
+      doc.setTextColor(...PDF_COLORS.lightGray);
+      doc.text(`Informe PrediSys · ${now.toLocaleDateString('es-ES')}`, pageW/2, 34, { align:'center' });
+      y = 60;
+      boxStartY = y;
+    }
+    const t = r.history.temp[HISTORY_LENGTH-1];
+    const h = r.history.hash[HISTORY_LENGTH-1];
+
+    doc.setFont('helvetica','bold'); doc.setFontSize(10);
+    doc.setTextColor(...PDF_COLORS.text);
+    doc.text(r.name.replace('Rig-','Rig '), colX.name, y);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8);
+    doc.setTextColor(...PDF_COLORS.gray);
+    doc.text(r.model, colX.name, y+12);
+
+    doc.setFont('helvetica','bold'); doc.setFontSize(9);
+    doc.setTextColor(...statusColorPDF(r.status));
+    doc.text(statusLabelPDF(r.status), colX.status, y+2);
+
+    doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+    doc.setTextColor(...PDF_COLORS.text);
+    doc.text(`${t.toFixed(1)} °C`, colX.temp, y+2);
+    doc.text(`${h.toFixed(1)} TH/s`, colX.hash, y+2);
+
+    doc.setFont('helvetica','bold');
+    doc.text(`${Math.round(r.score)}%`, colX.risk, y+2, { align:'right' });
+
+    y += rowH;
+    if (idx < sortedRigs.length-1) {
+      doc.setDrawColor(...PDF_COLORS.border); doc.setLineWidth(0.6);
+      doc.line(margin+16, y-14, pageW-margin-16, y-14);
+    }
+  });
+  closeBox(y+6);
+
+  // ---- Pie de página en todas las páginas ----
+  const totalPages = doc.internal.getNumberOfPages();
+  for (let p=1; p<=totalPages; p++) {
+    doc.setPage(p);
+    doc.setDrawColor(...PDF_COLORS.border); doc.setLineWidth(0.75);
+    doc.line(margin, pageH-46, pageW-margin, pageH-46);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
+    doc.setTextColor(...PDF_COLORS.lightGray);
+    doc.text('PrediSys Control Room · Informe de demostración', margin, pageH-30);
+    doc.text('Datos simulados · No usar para operación productiva', pageW-margin, pageH-30, { align:'right' });
+    doc.text(`Página ${p}/${totalPages}`, pageW/2, pageH-30, { align:'center' });
+  }
+
+  const stamp = now.toISOString().slice(0,10);
+  doc.save(`PrediSys_Informe_${stamp}.pdf`);
+  addNotification('Informe PDF generado y descargado', 'info');
+  logActivity('Informe ejecutivo en PDF generado', 'info');
+}
+</script>
+</body>
+</html>
+<script>
+// Carga inicial de precios de minería.
+fetchLivePrices();
+
+// Registro del Service Worker (PWA instalable). Solo en contextos seguros (https o localhost).
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch((err) => {
+      console.warn('No se pudo registrar el Service Worker:', err);
+    });
+  });
+}
+</script>

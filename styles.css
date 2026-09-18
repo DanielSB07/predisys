@@ -1,0 +1,62 @@
+body{ background:#0B0F19; color:#F8FAFC; overflow:hidden; -webkit-font-smoothing:antialiased; }
+
+  .bg-grid{
+    position:fixed; inset:0; z-index:-2;
+    background-image:
+      linear-gradient(rgba(148,163,184,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148,163,184,0.05) 1px, transparent 1px);
+    background-size:34px 34px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 90%);
+  }
+  .bg-mesh{
+    position:fixed; inset:0; z-index:-1;
+    background-image:
+      radial-gradient(at 10% 0%, rgba(34,211,238,0.10) 0px, transparent 50%),
+      radial-gradient(at 90% 10%, rgba(167,139,250,0.08) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(52,211,153,0.05) 0px, transparent 50%);
+  }
+
+  .glass{
+    background: linear-gradient(155deg, rgba(19,26,41,0.92) 0%, rgba(11,15,25,0.96) 100%);
+    border:1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    backdrop-filter: blur(14px);
+    border-radius: 1rem;
+  }
+  .glass-btn{ background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); transition:all .15s ease; }
+  .glass-btn:hover{ background:rgba(255,255,255,0.08); transform:translateY(-1px); }
+  .glass-btn:active{ transform:translateY(0); }
+
+  ::-webkit-scrollbar{ width:6px; height:6px; }
+  ::-webkit-scrollbar-thumb{ background:#334155; border-radius:10px; }
+  ::-webkit-scrollbar-track{ background:transparent; }
+
+  .chart-line{ stroke-width:2.25; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+  .glow{ filter:drop-shadow(0 0 4px currentColor); }
+  .fade-in{ animation:fadeIn .35s ease-out forwards; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+
+  .nav-item{ transition:all .15s ease; }
+  .nav-item.active{ background:rgba(255,255,255,0.08); }
+
+  input[type=range]{ -webkit-appearance:none; height:4px; border-radius:4px; background:#1E293B; }
+  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:#22D3EE; box-shadow:0 0 8px rgba(34,211,238,.6); cursor:pointer; margin-top:-5px; }
+
+  .toggle{ width:38px; height:22px; border-radius:999px; background:#1E293B; position:relative; cursor:pointer; transition:background .2s; flex-shrink:0; }
+  .toggle.on{ background:#22D3EE; }
+  .toggle .dot{ position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; transition:left .2s; }
+  .toggle.on .dot{ left:18px; }
+
+  .pdf-mode{ overflow:visible !important; height:auto !important; }
+  .pdf-mode .no-print{ display:none !important; }
+
+  /* ============ MODO CLARO ============
+     El diseño está construido 100% con colores oscuros literales (bg-dark-900, text-white, etc.),
+     así que en vez de reescribir cada clase de Tailwind, invertimos los colores del árbol visual
+     y corregimos el matiz — un truco liviano y confiable para un toggle claro/oscuro. */
+  html.light body{
+    filter: invert(1) hue-rotate(180deg);
+    background:#F8FAFC;
+  }
+  html.light ::-webkit-scrollbar-thumb{ background:#334155; }
+  /* El modal de ayuda y menús ya heredan la inversión del body; nada más que tocar aquí. */
